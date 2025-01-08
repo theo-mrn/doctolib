@@ -168,6 +168,31 @@ export default function SalonBookingForm({ salon }: Props) {
       } else {
         setReservedSlots((prev) => [...prev, selectedTime]);
         setSelectedTime(null);
+
+        // Envoyer un e-mail de confirmation
+        try {
+          const emailResponse = await fetch(
+            "https://sijvzedmeayxyqybephs.supabase.co/functions/v1/send-email",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+              },
+              body: JSON.stringify({ email: user.email, date: formattedDate }),
+            }
+          );
+
+          if (!emailResponse.ok) {
+            const errorData = await emailResponse.json();
+            throw new Error(errorData.message || "Erreur inconnue lors de l'envoi de l'e-mail");
+          }
+
+          console.log("✅ E-mail de confirmation envoyé avec succès !");
+        } catch (emailError) {
+          console.error("❌ Erreur lors de l'envoi de l'e-mail de confirmation :", emailError);
+        }
+
         router.push(`/confirmation?salonName=${encodeURIComponent(salon.nom_salon)}&salonAddress=${encodeURIComponent(salon.adresse)}&service=${encodeURIComponent(selectedService)}&date=${encodeURIComponent(formattedDate)}&time=${encodeURIComponent(selectedTime)}&fullName=${encodeURIComponent(`${prenom} ${nom}`)}&phone=${encodeURIComponent(phone)}`);
       }
     } else {

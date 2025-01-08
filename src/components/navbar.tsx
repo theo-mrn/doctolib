@@ -48,7 +48,7 @@ export function Navbar() {
         <div className="flex justify-between h-16 z-50 hover:z-50">
           <div className="flex">
             <Link href="/dashboard" className="flex-shrink-0 flex items-center">
-              <Scissors className="h-8 w-8 text-indigo-600" />
+              <Scissors className="h-8 w-8 text-[#8B4513]" />
               <span className="ml-2 text-xl font-bold text-gray-900">MonSalon</span>
             </Link>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
@@ -69,7 +69,7 @@ export function Navbar() {
                         <li className="row-span-3">
                           <NavigationMenuLink asChild>
                             <a
-                              className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-indigo-500 to-indigo-900 p-6 no-underline outline-none focus:shadow-md hover:z-50"
+                              className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-black to-[#8B4513] p-6 no-underline outline-none focus:shadow-md hover:z-50"
                               href="/inscription-salon"
                             >
                               <div className="mt-4 mb-2 text-lg font-medium text-white">
