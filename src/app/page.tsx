@@ -1,101 +1,198 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import Image from 'next/image'
+import Link from 'next/link'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
+import { Scissors, Calendar, Clock, Star, Search, ChevronRight, Check } from 'lucide-react'
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase'; // Assurez-vous que Supabase est bien configuré
+import { useRouter } from 'next/navigation';
+
+export default function LandingPage() {
+  const [salons, setSalons] = useState<Salon[]>([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchSalons = async () => {
+      try {
+        const { data, error } = await supabase.from('salons').select('*');
+        if (error) throw new Error(error.message);
+
+        setSalons(data || []);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des salons :', error);
+      }
+    };
+
+    fetchSalons();
+  }, []);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      <main className="flex-1">
+        <section className="w-full  py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-r from-primary to-primary-foreground">
+          <div className="container px-12">
+            <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
+              <div className="flex flex-col justify-center space-y-4 text-white">
+                <div className="space-y-2">
+                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
+                    La beauté à portée de clic
+                  </h1>
+                  <p className="max-w-[600px] text-gray-200 md:text-xl">
+                    Réservez votre coiffeur en quelques secondes. Plus de 1000 salons à votre disposition.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center justify-center">
+                <Image
+                  src="/salon.jpg"
+                  width={800}
+                  height={400}
+                  alt="Illustration d'une coiffeuse stylisant les cheveux d'une cliente"
+                  className="rounded-lg"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+        <section className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-white to-gray-50">
+          <div className="container px-4 md:px-6">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-12">L'expérience CoiffureClick</h2>
+            <div className="grid gap-8 lg:grid-cols-3 lg:gap-12">
+              <div className="flex flex-col items-center text-center">
+                <div className="mb-4 p-2 bg-primary/10 rounded-full">
+                  <Calendar className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Flexibilité totale</h3>
+                <p className="text-gray-600">Réservez à tout moment, modifiez ou annulez sans frais jusqu'à 24h avant le rendez-vous.</p>
+              </div>
+              <div className="flex flex-col items-center text-center">
+                <div className="mb-4 p-2 bg-primary/10 rounded-full">
+                  <Star className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Expertise vérifiée</h3>
+                <p className="text-gray-600">Tous nos coiffeurs sont certifiés et régulièrement évalués pour garantir un service de qualité.</p>
+              </div>
+              <div className="flex flex-col items-center text-center">
+                <div className="mb-4 p-2 bg-primary/10 rounded-full">
+                  <Scissors className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Styles personnalisés</h3>
+                <p className="text-gray-600">Trouvez le coiffeur parfait pour votre style grâce à notre système de filtres avancés.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100">
+          <div className="container px-12">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12">Nos coiffeurs vedettes</h2>
+            <div className="grid gap-6 lg:grid-cols-3 lg:gap-12">
+              {salons.slice(0, 3).map((salon) => (
+                <Card key={salon.id} className="bg-white shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
+                  <div className="relative h-48">
+                    <img
+                      src={salon.image_url || "/placeholder.svg"}
+                      alt={salon.nom_salon}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-bold mb-2">{salon.nom_salon}</h3>
+                    <p className="text-gray-500 mb-4">{salon.adresse}</p>
+                    <Button variant="outline" className="w-full" onClick={() => router.push(`/dashboard/${salon.id}`)}>
+                      Voir les disponibilités
+                      <ChevronRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+        <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-50">
+          <div className="container px-4 md:px-6">
+            <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 items-center">
+              <div className="space-y-4 mx-12">
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Simplifiez votre routine beauté</h2>
+                <p className="text-gray-600 md:text-lg">
+                  Notre plateforme intuitive vous offre une expérience de réservation sans pareille. Découvrez nos fonctionnalités clés :
+                </p>
+                <ul className="space-y-2">
+                  <li className="flex items-center space-x-2">
+                    <Check className="h-5 w-5 text-primary" />
+                    <span>Recherche avancée par style, prix et disponibilité</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <Check className="h-5 w-5 text-primary" />
+                    <span>Système de notation et avis clients détaillés</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <Check className="h-5 w-5 text-primary" />
+                    <span>Rappels automatiques et gestion de vos rendez-vous</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <Check className="h-5 w-5 text-primary" />
+                    <span>Paiement sécurisé en ligne</span>
+                  </li>
+                </ul>
+                <Button className="mt-4" size="lg" onClick={() => router.push('/dashboard')}>
+                  Découvrir la plateforme
+                </Button>
+              </div>
+              <div className="flex justify-center lg:justify-end">
+                <Image
+                  src="/salon2.jpg"
+                  width={400}
+                  height={400}
+                  alt="Interface de CoiffureClick"
+                  className="rounded-lg shadow-lg"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+        <section className="w-full py-12 md:py-24 lg:py-32 bg-primary text-primary-foreground">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center space-y-4 text-center">
+              <div className="space-y-2">
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+                  Prêt à simplifier vos réservations ?
+                </h2>
+                <p className="mx-auto max-w-[700px] text-primary-foreground/90 md:text-xl">
+                  Rejoignez des milliers d'utilisateurs satisfaits et commencez à réserver vos rendez-vous dès aujourd'hui.
+                </p>
+              </div>
+              <Button className="bg-background text-primary hover:bg-background/90" size="lg" onClick={() => router.push('/dashboard')}>
+                Commencer maintenant
+              </Button>
+            </div>
+          </div>
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      <footer className="border-t bg-background">
+        <div className="container flex flex-col gap-4 py-6 md:flex-row md:justify-between">
+          <div className="flex flex-col gap-2">
+            <Link className="flex items-center justify-center md:justify-start" href="#">
+              <Scissors className="h-6 w-6 mr-2 text-primary" />
+              <span className="font-bold">CoiffureClick</span>
+            </Link>
+          </div>
+          <nav className="flex gap-4 sm:gap-6">
+            <Link className="text-sm hover:underline underline-offset-4" href="#">
+              Conditions d'utilisation
+            </Link>
+            <Link className="text-sm hover:underline underline-offset-4" href="#">
+              Politique de confidentialité
+            </Link>
+            <Link className="text-sm hover:underline underline-offset-4" href="#">
+              Nous contacter
+            </Link>
+          </nav>
+        </div>
       </footer>
     </div>
-  );
+  )
 }
+
