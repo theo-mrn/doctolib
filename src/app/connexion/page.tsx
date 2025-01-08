@@ -167,11 +167,6 @@ export default function ConnexionPage() {
             </Link>
           </div>
           <div className="mt-2 text-sm text-center">
-            <Link href="/inscription-pro" className="text-green-600 hover:underline">
-              Vous êtes un professionnel ? Inscrivez-vous ici
-            </Link>
-          </div>
-          <div className="mt-2 text-sm text-center">
             <Link href="/mot-de-passe-oublie" className="text-gray-600 hover:underline">
               Mot de passe oublié ?
             </Link>
