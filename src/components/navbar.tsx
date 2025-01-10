@@ -85,37 +85,11 @@ export function Navbar() {
                           <NavigationMenuLink asChild>
                             <a
                               className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-gray-100 focus:bg-gray-100"
-                              href="/appointments"
+                              href="/monsalon"
                             >
-                              <div className="text-sm font-medium leading-none">Mes rendez-vous</div>
+                              <div className="text-sm font-medium leading-none">Mon salon</div>
                               <p className="line-clamp-2 text-sm leading-snug text-gray-500">
-                                Gérez vos rendez-vous.
-                              </p>
-                            </a>
-                          </NavigationMenuLink>
-                        </li>
-                        <li>
-                          <NavigationMenuLink asChild>
-                            <a
-                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-gray-100 focus:bg-gray-100"
-                              href="/messagerie"
-                            >
-                              <div className="text-sm font-medium leading-none">Mes messages</div>
-                              <p className="line-clamp-2 text-sm leading-snug text-gray-500">
-                                Gérez vos messages
-                              </p>
-                            </a>
-                          </NavigationMenuLink>
-                        </li>
-                        <li>
-                          <NavigationMenuLink asChild>
-                            <a
-                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-gray-100 focus:bg-gray-100"
-                              href="/gestion-salon"
-                            >
-                              <div className="text-sm font-medium leading-none">Gestion de salon</div>
-                              <p className="line-clamp-2 text-sm leading-snug text-gray-500">
-                                Gérez votre équipe et vos services.
+                                Gérez votre salon.
                               </p>
                             </a>
                           </NavigationMenuLink>
@@ -123,10 +97,8 @@ export function Navbar() {
                       </ul>
                     </NavigationMenuContent>
                   </NavigationMenuItem>
-                  
                 </NavigationMenuList>
               </NavigationMenu>
-              
             </div>
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:items-center">

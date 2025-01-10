@@ -20,7 +20,7 @@ type Props = {
     id: number;
     nom_salon: string;
     adresse: string;
-    prestations?: string[];
+    pricing?: Record<string, number>;
   };
 };
 
@@ -29,24 +29,19 @@ const timeSlots = [
   '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00',
 ];
 
-type Service = {
-  name: string;
-  options: string[];
-};
-
-const fetchServices = async (salonId: number): Promise<string[]> => {
+const fetchPricing = async (salonId: number): Promise<Record<string, number>> => {
   const { data, error } = await supabase
     .from('salons')
-    .select('prestations')
+    .select('pricing')
     .eq('id', salonId)
     .single();
 
   if (error) {
-    console.error('❌ Erreur lors de la récupération des prestations :', error.message);
-    return [];
+    console.error('❌ Erreur lors de la récupération des prix :', error.message);
+    return {};
   }
 
-  return data.prestations || [];
+  return data.pricing || {};
 };
 
 export default function SalonBookingForm({ salon }: Props) {
@@ -57,11 +52,10 @@ export default function SalonBookingForm({ salon }: Props) {
   const [phone, setPhone] = useState('');
   const [reservedSlots, setReservedSlots] = useState<string[]>([]);
   const [profileError, setProfileError] = useState<string | null>(null);
-  const [services, setServices] = useState<string[]>(salon.prestations || []);
+  const [pricing, setPricing] = useState<Record<string, number>>(salon.pricing || {});
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const router = useRouter();
 
- 
   useEffect(() => {
     const fetchUserProfile = async () => {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -92,7 +86,6 @@ export default function SalonBookingForm({ salon }: Props) {
     fetchUserProfile();
   }, []);
 
- 
   const fetchReservedSlots = async (selectedDate: Date) => {
     if (!selectedDate) return;
 
@@ -113,7 +106,6 @@ export default function SalonBookingForm({ salon }: Props) {
     setReservedSlots(normalizedSlots);
   };
 
- 
   useEffect(() => {
     if (date) {
       fetchReservedSlots(date);
@@ -121,19 +113,14 @@ export default function SalonBookingForm({ salon }: Props) {
   }, [date, salon.id]);
 
   useEffect(() => {
-    const loadServices = async () => {
-      const services = await fetchServices(salon.id);
-      setServices(services);
+    const loadPricing = async () => {
+      const pricing = await fetchPricing(salon.id);
+      setPricing(pricing);
     };
 
-    loadServices();
+    loadPricing();
   }, [salon.id]);
 
-  const handleOptionChange = (serviceName: string, option: string) => {
-    setSelectedOptions((prev) => ({ ...prev, [serviceName]: option }));
-  };
-
- 
   const handleSubmit = async () => {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
@@ -149,6 +136,8 @@ export default function SalonBookingForm({ salon }: Props) {
         return;
       }
 
+      const price = pricing[selectedService];
+
       const { error } = await supabase
         .from('reservations')
         .insert([
@@ -158,6 +147,7 @@ export default function SalonBookingForm({ salon }: Props) {
             date: formattedDate,
             time: selectedTime,
             service: selectedService,
+            price: price,
             full_name: `${prenom} ${nom}`,
             phone: phone,
           },
@@ -216,15 +206,14 @@ export default function SalonBookingForm({ salon }: Props) {
               <SelectValue placeholder="Sélectionnez un service" />
             </SelectTrigger>
             <SelectContent>
-              {services.map((service, index) => (
+              {Object.keys(pricing).map((service, index) => (
                 <SelectItem key={index} value={service}>
-                  {service}
+                  {service} - {pricing[service]}€
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-
 
         <div>
           <h3 className="text-lg font-medium text-[#4A332F] mb-3">2. Choisissez une date</h3>
@@ -238,7 +227,6 @@ export default function SalonBookingForm({ salon }: Props) {
             className="rounded-md border mx-auto"
           />
         </div>
-
 
         {date && (
           <div>
@@ -265,7 +253,6 @@ export default function SalonBookingForm({ salon }: Props) {
           </div>
         )}
 
-     
         <div>
           <h3 className="text-lg font-medium text-[#4A332F] mb-3">4. Vos informations</h3>
           <label className="block text-sm font-medium text-gray-700">Prénom</label>
@@ -276,7 +263,6 @@ export default function SalonBookingForm({ salon }: Props) {
           <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /><br></br>
         </div>
 
-   
         <Button
           className="w-full bg-[#8B4513] hover:bg-[#6F3710] text-white mt-6"
           disabled={!date || !selectedTime || !selectedService || !prenom || !nom || !phone}
