@@ -21,9 +21,13 @@ export type Appointment = {
   salonName: string 
 }
 
-
-
-export function AppointmentList({ appointments }: { appointments: Appointment[] }) {
+export function AppointmentList({ 
+  appointments,
+  setAppointments 
+}: { 
+  appointments: Appointment[]
+  setAppointments: (appointments: Appointment[]) => void 
+}) {
   const [filterDate, setFilterDate] = useState<Date | undefined>(undefined)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null)

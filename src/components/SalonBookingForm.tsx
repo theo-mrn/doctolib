@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation';
 
 type Props = {
   salon: {
-    id: number;
+    id: string;  // Changé de number à string
     nom_salon: string;
     adresse: string;
     pricing?: Record<string, number>;
@@ -29,7 +29,8 @@ const timeSlots = [
   '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00',
 ];
 
-const fetchPricing = async (salonId: number): Promise<Record<string, number>> => {
+// Modifier la fonction fetchPricing pour accepter un string
+const fetchPricing = async (salonId: string): Promise<Record<string, number>> => {
   const { data, error } = await supabase
     .from('salons')
     .select('pricing')
@@ -86,7 +87,7 @@ export default function SalonBookingForm({ salon }: Props) {
     fetchUserProfile();
   }, []);
 
-  const fetchReservedSlots = async (selectedDate: Date) => {
+  const fetchReservedSlots = useCallback(async (selectedDate: Date) => {
     if (!selectedDate) return;
 
     const formattedDate = selectedDate.toISOString().split('T')[0];
@@ -104,13 +105,13 @@ export default function SalonBookingForm({ salon }: Props) {
 
     const normalizedSlots = data.map((res: { time: string }) => res.time.slice(0, 5));
     setReservedSlots(normalizedSlots);
-  };
+  }, [salon.id]);
 
   useEffect(() => {
     if (date) {
       fetchReservedSlots(date);
     }
-  }, [date, salon.id]);
+  }, [date, fetchReservedSlots]);
 
   useEffect(() => {
     const loadPricing = async () => {
@@ -124,71 +125,68 @@ export default function SalonBookingForm({ salon }: Props) {
   const handleSubmit = async () => {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      console.error('❌ Erreur lors de la récupération de l\'utilisateur:', authError?.message);
-      return;
+        console.error('❌ Erreur lors de la récupération de l\'utilisateur:', authError?.message);
+        return;
     }
 
     if (date && selectedTime && selectedService && prenom && nom && phone) {
-      const formattedDate = date.toISOString().split('T')[0];
+        const formattedDate = date.toISOString().split('T')[0];
 
-      if (reservedSlots.includes(selectedTime)) {
-        alert('⚠️ Ce créneau est déjà réservé. Veuillez en choisir un autre.');
-        return;
-      }
+        if (reservedSlots.includes(selectedTime)) {
+            alert('⚠️ Ce créneau est déjà réservé. Veuillez en choisir un autre.');
+            return;
+        }
 
-      const price = pricing[selectedService];
+        const price = pricing[selectedService];
 
-      const { error } = await supabase
-        .from('reservations')
-        .insert([
-          {
-            salon_id: salon.id,
-            client_id: user.id, 
-            date: formattedDate,
-            time: selectedTime,
-            service: selectedService,
-            price: price,
-            full_name: `${prenom} ${nom}`,
-            phone: phone,
-          },
-        ]);
+        const { error } = await supabase
+            .from('reservations')
+            .insert([
+                {
+                    salon_id: salon.id,
+                    client_id: user.id, 
+                    date: formattedDate,
+                    time: selectedTime,
+                    service: selectedService,
+                    price: price,
+                    full_name: `${prenom} ${nom}`,
+                    phone: phone,
+                },
+            ]);
 
-      if (error) {
-        console.error('❌ Erreur lors de l\'enregistrement de la réservation :', error.message);
-      } else {
+        if (error) {
+            console.error('❌ Erreur lors de l\'enregistrement de la réservation :', error.message);
+            return;
+        }
+
         setReservedSlots((prev) => [...prev, selectedTime]);
         setSelectedTime(null);
 
-        // Envoyer un e-mail de confirmation
+        // ✅ Utilisation de l'API sécurisée Next.js (proxy)
         try {
-          const emailResponse = await fetch(
-            "https://sijvzedmeayxyqybephs.supabase.co/functions/v1/send-email",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-              },
-              body: JSON.stringify({ email: user.email, date: formattedDate }),
+            const emailResponse = await fetch('/api/send-email', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email: user.email, date: formattedDate }),
+            });
+
+            if (!emailResponse.ok) {
+                const errorData = await emailResponse.json();
+                throw new Error(errorData.error || "Erreur inconnue lors de l'envoi de l'e-mail");
             }
-          );
 
-          if (!emailResponse.ok) {
-            const errorData = await emailResponse.json();
-            throw new Error(errorData.message || "Erreur inconnue lors de l'envoi de l'e-mail");
-          }
-
-          console.log("✅ E-mail de confirmation envoyé avec succès !");
+            console.log("✅ E-mail de confirmation envoyé avec succès !");
         } catch (emailError) {
-          console.error("❌ Erreur lors de l'envoi de l'e-mail de confirmation :", emailError);
+            console.error("❌ Erreur lors de l'envoi de l'e-mail de confirmation :", emailError);
         }
 
         router.push(`/confirmation?salonName=${encodeURIComponent(salon.nom_salon)}&salonAddress=${encodeURIComponent(salon.adresse)}&service=${encodeURIComponent(selectedService)}&date=${encodeURIComponent(formattedDate)}&time=${encodeURIComponent(selectedTime)}&fullName=${encodeURIComponent(`${prenom} ${nom}`)}&phone=${encodeURIComponent(phone)}`);
-      }
     } else {
-      alert('⚠️ Merci de remplir toutes les informations avant de confirmer.');
+        alert('⚠️ Merci de remplir toutes les informations avant de confirmer.');
     }
-  };
+};
 
   if (profileError) {
     return <div className="container mx-auto py-10"><h1 className="text-3xl font-bold mb-6">{profileError}</h1></div>
@@ -219,10 +217,12 @@ export default function SalonBookingForm({ salon }: Props) {
           <h3 className="text-lg font-medium text-[#4A332F] mb-3">2. Choisissez une date</h3>
           <Calendar
             mode="single"
-            selected={date}
+            selected={date || undefined}
             onSelect={(newDate) => {
-              setDate(newDate);
-              fetchReservedSlots(newDate);
+              if (newDate) {
+                setDate(newDate);
+                fetchReservedSlots(newDate);
+              }
             }}
             className="rounded-md border mx-auto"
           />

@@ -3,12 +3,18 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
-import { Scissors, Calendar, Clock, Star, Search, ChevronRight, Check } from 'lucide-react'
+import { Scissors, Calendar, Star,  ChevronRight, Check } from 'lucide-react'
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase'; // Assurez-vous que Supabase est bien configuré
 import { useRouter } from 'next/navigation';
+
+interface Salon {
+  id: number;
+  nom_salon: string;
+  adresse: string;
+  image_url: string;
+}
 
 export default function LandingPage() {
   const [salons, setSalons] = useState<Salon[]>([]);
@@ -50,7 +56,7 @@ export default function LandingPage() {
                   src="/salon.jpg"
                   width={800}
                   height={400}
-                  alt="Illustration d'une coiffeuse stylisant les cheveux d'une cliente"
+                  alt="Illustration d&apos;une coiffeuse stylisant les cheveux d&apos;une cliente"
                   className="rounded-lg"
                 />
               </div>
@@ -59,14 +65,14 @@ export default function LandingPage() {
         </section>
         <section className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-white to-gray-50">
           <div className="container px-4 md:px-6">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-12">L'expérience CoiffureClick</h2>
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-center mb-12">L&apos;expérience CoiffureClick</h2>
             <div className="grid gap-8 lg:grid-cols-3 lg:gap-12">
               <div className="flex flex-col items-center text-center">
                 <div className="mb-4 p-2 bg-primary/10 rounded-full">
                   <Calendar className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Flexibilité totale</h3>
-                <p className="text-gray-600">Réservez à tout moment, modifiez ou annulez sans frais jusqu'à 24h avant le rendez-vous.</p>
+                <p className="text-gray-600">Réservez à tout moment, modifiez ou annulez sans frais jusqu&apos;à 24h avant le rendez-vous.</p>
               </div>
               <div className="flex flex-col items-center text-center">
                 <div className="mb-4 p-2 bg-primary/10 rounded-full">
@@ -92,10 +98,11 @@ export default function LandingPage() {
               {salons.slice(0, 3).map((salon) => (
                 <Card key={salon.id} className="bg-white shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
                   <div className="relative h-48">
-                    <img
+                    <Image
                       src={salon.image_url || "/placeholder.svg"}
                       alt={salon.nom_salon}
-                      className="w-full h-full object-cover"
+                      layout="fill"
+                      objectFit="cover"
                     />
                   </div>
                   <CardContent className="p-6">
@@ -161,7 +168,7 @@ export default function LandingPage() {
                   Prêt à simplifier vos réservations ?
                 </h2>
                 <p className="mx-auto max-w-[700px] text-primary-foreground/90 md:text-xl">
-                  Rejoignez des milliers d'utilisateurs satisfaits et commencez à réserver vos rendez-vous dès aujourd'hui.
+                  Rejoignez des milliers d&apos;utilisateurs satisfaits et commencez à réserver vos rendez-vous dès aujourd&apos;hui.
                 </p>
               </div>
               <Button className="bg-background text-primary hover:bg-background/90" size="lg" onClick={() => router.push('/dashboard')}>
@@ -181,7 +188,7 @@ export default function LandingPage() {
           </div>
           <nav className="flex gap-4 sm:gap-6">
             <Link className="text-sm hover:underline underline-offset-4" href="#">
-              Conditions d'utilisation
+              Conditions d&apos;utilisation
             </Link>
             <Link className="text-sm hover:underline underline-offset-4" href="#">
               Politique de confidentialité

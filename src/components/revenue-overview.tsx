@@ -15,12 +15,12 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { supabase } from "@/lib/supabase"
 
-// Fonction pour obtenir le numéro de la semaine
-Date.prototype.getWeek = function () {
-  const firstDayOfYear = new Date(this.getFullYear(), 0, 1)
-  const pastDaysOfYear = (this - firstDayOfYear) / 86400000
-  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7)
-}
+// Définition de la fonction getWeek
+Date.prototype.getWeek = function(): number {
+  const firstDayOfYear = new Date(this.getFullYear(), 0, 1);
+  const pastDaysOfYear = (this.valueOf() - firstDayOfYear.valueOf()) / 86400000;
+  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+};
 
 // Fonction pour générer les jours d'un mois
 const generateMonthDays = (year: number, month: number) => {
@@ -43,15 +43,40 @@ const generateWeekDays = (year: number, week: number) => {
   return days
 }
 
+// Types pour les données
+interface WeeklyDataItem {
+  week: string;
+  total: number;
+}
+
+interface Reservation {
+  id: string;
+  full_name: string;
+  service: string;
+  price: number;
+  date: string;
+  salon_id: number;
+}
+
+interface DayData {
+  name: string;
+  total: number;
+}
+
+interface MonthData {
+  month: string;
+  total: number;
+}
+
 export function RevenueOverview() {
-  const [data, setData] = useState<{ name: string; total: number }[]>([])
-  const [weeklyData, setWeeklyData] = useState<{ day: string; total: number }[]>([])
+  const [data, setData] = useState<DayData[]>([])
+  const [weeklyData, setWeeklyData] = useState<WeeklyDataItem[]>([])
   const [monthlyData, setMonthlyData] = useState<{ month: string; total: number }[]>([])
   const [payments, setPayments] = useState<{ id: string; client: string; service: string; amount: number; date: string }[]>([])
   const [salonId, setSalonId] = useState<number | null>(null)
   const [duration, setDuration] = useState<string>('weekly')
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(null)
-  const [selectedWeek, setSelectedWeek] = useState<string | null>(null)
+  const [selectedMonth, setSelectedMonth] = useState<string>('')
+  const [selectedWeek, setSelectedWeek] = useState<string>('')
 
   useEffect(() => {
     const fetchSalonId = async () => {
@@ -91,11 +116,11 @@ export function RevenueOverview() {
         console.error('❌ Erreur lors de la récupération des réservations :', error.message)
       } else {
         const now = new Date()
-        const pastReservations = reservations.filter((reservation: any) => new Date(reservation.date) < now)
+        const pastReservations = (reservations as Reservation[]).filter((reservation) => new Date(reservation.date) < now)
         
-        const formattedData = pastReservations.reduce((acc: any, reservation: any) => {
+        const formattedData = pastReservations.reduce((acc: DayData[], reservation: Reservation) => {
           const day = new Date(reservation.date).toLocaleString('fr-FR', { day: 'numeric', month: 'short' })
-          const existingDay = acc.find((item: any) => item.name === day)
+          const existingDay = acc.find((item) => item.name === day)
           if (existingDay) {
             existingDay.total += reservation.price
           } else {
@@ -104,9 +129,9 @@ export function RevenueOverview() {
           return acc
         }, [])
 
-        const weeklyData = pastReservations.reduce((acc: any, reservation: any) => {
+        const weeklyData = pastReservations.reduce((acc: WeeklyDataItem[], reservation: Reservation) => {
           const week = `Semaine ${new Date(reservation.date).getWeek()}`
-          const existingWeek = acc.find((item: any) => item.week === week)
+          const existingWeek = acc.find((item) => item.week === week)
           if (existingWeek) {
             existingWeek.total += reservation.price
           } else {
@@ -115,9 +140,9 @@ export function RevenueOverview() {
           return acc
         }, [])
 
-        const monthlyData = pastReservations.reduce((acc: any, reservation: any) => {
+        const monthlyData = pastReservations.reduce((acc: MonthData[], reservation: Reservation) => {
           const month = new Date(reservation.date).toLocaleString('fr-FR', { month: 'long', year: 'numeric' })
-          const existingMonth = acc.find((item: any) => item.month === month)
+          const existingMonth = acc.find((item) => item.month === month)
           if (existingMonth) {
             existingMonth.total += reservation.price
           } else {
@@ -129,7 +154,7 @@ export function RevenueOverview() {
         setData(formattedData)
         setWeeklyData(weeklyData)
         setMonthlyData(monthlyData)
-        setPayments(pastReservations.map((reservation: any) => ({
+        setPayments(pastReservations.map((reservation) => ({
           id: reservation.id,
           client: reservation.full_name,
           service: reservation.service,
@@ -140,7 +165,7 @@ export function RevenueOverview() {
     }
 
     fetchData()
-  }, [salonId, duration, selectedMonth, selectedWeek])
+  }, [salonId])
 
   useEffect(() => {
     if (duration === 'monthly' && selectedMonth) {
@@ -153,7 +178,7 @@ export function RevenueOverview() {
       })
       setData(newData)
     } else if (duration === 'weekly' && selectedWeek) {
-      const [_, weekNumber] = selectedWeek.split(' ')
+      const [, weekNumber] = selectedWeek.split(' ') 
       const year = new Date().getFullYear()
       const days = generateWeekDays(year, parseInt(weekNumber))
       const newData = days.map(day => {
@@ -162,7 +187,7 @@ export function RevenueOverview() {
       })
       setData(newData)
     }
-  }, [duration, selectedMonth, selectedWeek])
+  }, [duration, selectedMonth, selectedWeek, data])
 
   const totalRevenue = data.reduce((acc, item) => acc + item.total, 0)
 
@@ -189,7 +214,7 @@ export function RevenueOverview() {
               </SelectContent>
             </Select>
             {duration === 'monthly' && (
-              <Select onValueChange={(value) => setSelectedMonth(value)} defaultValue={null}>
+              <Select onValueChange={setSelectedMonth} defaultValue="">
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Sélectionner le mois" />
                 </SelectTrigger>
@@ -201,7 +226,7 @@ export function RevenueOverview() {
               </Select>
             )}
             {duration === 'weekly' && (
-              <Select onValueChange={(value) => setSelectedWeek(value)} defaultValue={null}>
+              <Select onValueChange={setSelectedWeek} defaultValue="">
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Sélectionner la semaine" />
                 </SelectTrigger>

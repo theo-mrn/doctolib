@@ -3,15 +3,17 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card'; 
 import { Separator } from '@/components/ui/separator';
-import { MapPin, Info, Edit3, Plus, Trash2, PlusCircle, Trash } from 'lucide-react';
+import { MapPin, Info, Edit3, Plus, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/lib/supabase';
-import { Badge } from '@/components/ui/badge'; 
 import { TimePicker } from '@/components/ui/TimePicker'; 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
+
+type HoursType = {
+  [key: string]: { start: string; end: string; } | 'Fermé';
+};
 
 type Props = {
   salon: {
@@ -21,7 +23,8 @@ type Props = {
     description: string;
     code_postal: string;
     ville: string;
-    ouverture?: Record<string, { start: string; end: string } | 'Fermé'>;
+    image_url?: string;
+    ouverture?: HoursType;
     prestations?: string[]; 
     pricing?: Record<string, number>;
   };
@@ -33,7 +36,6 @@ export default function SalonInfo({ salon }: Props) {
   const [editedSalon, setEditedSalon] = useState(salon);
   const [editedOuverture, setEditedOuverture] = useState(salon.ouverture || {});
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
   const [newServiceOption, setNewServiceOption] = useState('');
   const [editedPricing, setEditedPricing] = useState(salon.pricing || {});
   const [newPricingService, setNewPricingService] = useState('');
@@ -79,7 +81,7 @@ const handleSaveChanges = async () => {
     let imageUrl = editedSalon.image_url;
 
     if (imageFile) {
-      const { data, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('image_salons')
         .upload(`public/${salon.id}/${imageFile.name}`, imageFile);
 
@@ -88,17 +90,12 @@ const handleSaveChanges = async () => {
         return;
       }
 
-      const { data: urlData, error: urlError } = supabase
+      const { data: { publicUrl } } = supabase
         .storage
         .from('image_salons')
         .getPublicUrl(`public/${salon.id}/${imageFile.name}`);
 
-      if (urlError) {
-        console.error('Erreur lors de la récupération de l\'URL de l\'image :', urlError.message);
-        return;
-      }
-
-      imageUrl = urlData.publicUrl;
+      imageUrl = publicUrl;
     }
 
     const { error } = await supabase
@@ -156,13 +153,6 @@ const handleSaveChanges = async () => {
     setEditedOuverture((prev) => ({
       ...prev,
       [day]: isOpen ? { start: '', end: '' } : 'Fermé',
-    }));
-  };
-
-  const handlePricingChange = (serviceName: string, price: number) => {
-    setEditedPricing((prev) => ({
-      ...prev,
-      [serviceName]: price,
     }));
   };
 
@@ -345,17 +335,17 @@ const handleSaveChanges = async () => {
                   <span className="capitalize w-24">{day}</span>
                   <Checkbox
                     checked={editedOuverture[day] !== 'Fermé'}
-                    onCheckedChange={(isOpen) => handleToggleDayOpen(day, isOpen)}
+                    onCheckedChange={(checked: boolean) => handleToggleDayOpen(day, checked)}
                   />
-                  {editedOuverture[day] !== 'Fermé' && (
+                  {editedOuverture[day] !== 'Fermé' && editedOuverture[day] !== undefined && (
                     <>
                       <TimePicker
-                        value={editedOuverture[day]?.start || ""}
-                        onChange={(time) => handleHoursChange(day, time, editedOuverture[day]?.end || "")}
+                        value={(editedOuverture[day] as { start: string; end: string; }).start || ""}
+                        onChange={(time) => handleHoursChange(day, time, (editedOuverture[day] as { start: string; end: string; }).end || "")}
                       />
                       <TimePicker
-                        value={editedOuverture[day]?.end || ""}
-                        onChange={(time) => handleHoursChange(day, editedOuverture[day]?.start || "", time)}
+                        value={(editedOuverture[day] as { start: string; end: string; }).end || ""}
+                        onChange={(time) => handleHoursChange(day, (editedOuverture[day] as { start: string; end: string; }).start || "", time)}
                       />
                     </>
                   )}

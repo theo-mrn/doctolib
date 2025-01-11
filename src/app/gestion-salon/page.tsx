@@ -4,14 +4,23 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import SalonInfo from '@/components/SalonInfo';
 
+interface Salon {
+  id: string;
+  nom_salon: string;
+  adresse: string;
+  description: string;
+  code_postal: string;
+  ville: string;
+}
+
 export default function GestionSalon() {
-  const [salons, setSalons] = useState([]);
-  const [userId, setUserId] = useState(null);
+  const [salons, setSalons] = useState<Salon[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      setUserId(user?.id);
+      setUserId(user?.id || null);
     };
 
     fetchUser();
@@ -28,7 +37,7 @@ export default function GestionSalon() {
         if (error) {
           console.error('Erreur lors de la récupération des salons :', error.message);
         } else {
-          setSalons(data);
+          setSalons(data as Salon[]);
         }
       }
     };

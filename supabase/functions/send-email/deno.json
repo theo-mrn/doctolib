@@ -1,5 +1,15 @@
 {
-    "imports": {
-      "https://deno.land/x/sift@0.6.0/mod.ts": "https://deno.land/x/sift@0.6.0/mod.ts"
-    }
-  }
+  "tasks": {
+    "dev": "deno run --allow-net --allow-env --allow-read ./supabase/functions/send-email/index.ts"
+  },
+  "imports": {
+    "https://deno.land/std/http/server.ts": "https://deno.land/std@0.207.0/http/server.ts"
+  },
+  "compilerOptions": {
+    "strict": true
+  },
+  "exclude": [
+    "node_modules",
+    "supabase/functions/send-email/**/*"
+]
+}

@@ -4,9 +4,20 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import AppointmentList from '@/components/mesrendezvous'
 
+export interface Appointment {
+  id: number;
+  client_id: string;
+  date_heure: string;
+  duree: number;
+  salons: {
+    nom_salon: string;
+    adresse: string;
+  };
+}
+
 export default function AppointmentsPage() {
   const router = useRouter()
-  const [appointments, setAppointments] = useState([])
+  const [appointments, setAppointments] = useState<Appointment[]>([])
   const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -36,7 +47,9 @@ export default function AppointmentsPage() {
 
       if (error) {
         console.error('Erreur lors de la récupération des rendez-vous:', error.message)
-      } 
+      } else {
+        setAppointments(data)
+      }
     }
 
     fetchAppointments()
@@ -45,10 +58,10 @@ export default function AppointmentsPage() {
   return (
     <div className="container max-w-2xl mx-auto py-10 px-4">
       <h1 className="text-4xl font-bold mb-2 text-center">Mes Rendez-vous</h1>
-      <p className="text-muted-foreground text-center mb-10">Gérez vos rendez-vous chez le coiffeur en un clin d'œil</p>
+      <p className="text-muted-foreground text-center mb-10">Gérez vos rendez-vous chez le coiffeur en un clin d&apos;œil</p>
       {appointments.length === 0 ? (
         <div className="text-center">
-          <p className="mb-4">Vous n'avez pas de rendez-vous pour le moment.</p>
+          <p className="mb-4">Vous n&apos;avez pas de rendez-vous pour le moment.</p>
           <button 
              className="w-full bg-[#8B4513] hover:bg-[#6F3710] text-white flex items-center justify-center gap-2 rounded-lg p-3"
             onClick={() => router.push('/dashboard')}

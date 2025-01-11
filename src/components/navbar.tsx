@@ -21,7 +21,7 @@ export function Navbar() {
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser()
+      const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         setIsLoggedIn(true)
       } else {
@@ -63,7 +63,7 @@ export function Navbar() {
                     </NavigationMenuLink>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
-                    <NavigationMenuTrigger>J'ai un salon</NavigationMenuTrigger>
+                    <NavigationMenuTrigger>J&apos;ai un salon</NavigationMenuTrigger>
                     <NavigationMenuContent>
                       <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] z-50 hover:z-50">
                         <li className="row-span-3">

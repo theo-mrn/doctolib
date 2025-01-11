@@ -89,14 +89,14 @@ export default function InscriptionPage() {
 
       setMessage("Inscription réussie !");
       router.push("/dashboard");
-    } catch (error: any) {
-      setMessage(`Erreur : ${error.message}`);
+    } catch (error: unknown) {
+      setMessage(`Erreur : ${(error as Error).message}`);
     }
   };
 
   const handleGoogleSignIn = async () => {
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: "http://localhost:3000/inscription",
@@ -108,8 +108,8 @@ export default function InscriptionPage() {
       }
 
       console.log("Redirection vers Google en cours...");
-    } catch (error: any) {
-      setMessage(`Erreur avec Google : ${error.message}`);
+    } catch (error: unknown) {
+      setMessage(`Erreur avec Google : ${(error as Error).message}`);
     }
   };
 
@@ -182,7 +182,7 @@ export default function InscriptionPage() {
               </div>
             </div>
             <Button type="submit" className="w-full mt-4">
-              S'inscrire
+              S&apos;inscrire
             </Button>
           </form>
           <div className="flex flex-col items-center mt-4">
@@ -190,7 +190,7 @@ export default function InscriptionPage() {
               onClick={handleGoogleSignIn}
               className="w-full bg-red-500 hover:bg-red-600"
             >
-              S'inscrire / Se connecter avec Google
+              S&apos;inscrire / Se connecter avec Google
             </Button>
           </div>
           {message && (

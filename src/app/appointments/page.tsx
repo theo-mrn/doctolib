@@ -22,6 +22,16 @@ type Appointment = {
   salon_id: number;
 };
 
+type RawAppointment = {
+  id: string;
+  date: string;
+  time: string;
+  full_name: string;
+  phone: string;
+  service: string;
+  salon_id: number;
+};
+
 export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [filterDate, setFilterDate] = useState<Date | undefined>(undefined)
@@ -29,7 +39,7 @@ export default function AppointmentsPage() {
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null)
   const [deletingAppointment, setDeletingAppointment] = useState<Appointment | null>(null)
   const [newAppointment, setNewAppointment] = useState<Partial<Appointment>>({
-    date: '',
+    date: undefined,
     full_name: '',
     phone: '',
     service: ''
@@ -76,7 +86,7 @@ export default function AppointmentsPage() {
       if (error) {
         console.error('❌ Erreur lors de la récupération des rendez-vous :', error.message)
       } else {
-        const formattedAppointments = data.map((appointment: any) => ({
+        const formattedAppointments = data.map((appointment: RawAppointment) => ({
           ...appointment,
           date: new Date(appointment.date + 'T' + appointment.time)
         }))
@@ -97,7 +107,7 @@ export default function AppointmentsPage() {
   const handleAddAppointment = async (e: React.FormEvent) => {
     e.preventDefault()
     if (newAppointment.date && newAppointment.full_name && newAppointment.phone && newAppointment.service && salonId) {
-      const appointmentDate = new Date(newAppointment.date as string)
+      const appointmentDate = new Date(newAppointment.date as unknown as string)
       const { error } = await supabase
         .from('reservations')
         .insert([
@@ -124,7 +134,7 @@ export default function AppointmentsPage() {
         }])
         setIsAddDialogOpen(false)
         setNewAppointment({
-          date: '',
+          date: undefined,
           full_name: '',
           phone: '',
           service: ''
@@ -268,8 +278,8 @@ export default function AppointmentsPage() {
               <Input
                 id="date"
                 type="datetime-local"
-                value={newAppointment.date as string}
-                onChange={(e) => setNewAppointment({ ...newAppointment, date: e.target.value })}
+                value={newAppointment.date ? (newAppointment.date as unknown as string) : ''}
+                onChange={(e) => setNewAppointment({ ...newAppointment, date: new Date(e.target.value) })}
                 required
               />
             </div>

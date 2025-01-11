@@ -3,7 +3,7 @@
 import { useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { MapPin, Calendar, Clock, Scissors, User, Mail, Phone, Check } from 'lucide-react'
+import { MapPin, Calendar, Clock, Scissors, User, Phone, Check } from 'lucide-react'
 import Link from 'next/link'
 
 export default function ConfirmationPage() {
@@ -97,7 +97,7 @@ export default function ConfirmationPage() {
           <div className="mt-8">
             <Link href="/dashboard">
               <Button className="w-full bg-[#8B4513] hover:bg-[#6F3710] text-white">
-                Retour à l'accueil
+                Retour à l&apos;accueil
               </Button>
             </Link>
           </div>

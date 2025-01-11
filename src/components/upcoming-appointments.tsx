@@ -9,8 +9,16 @@ type DateRange = {
   to: Date;
 } | undefined;
 
+type Appointment = {
+  id: string;
+  date: string;
+  full_name: string;
+  service: string;
+  time: string;
+};
+
 export function UpcomingAppointments({ dateRange }: { dateRange: DateRange }) {
-  const [appointments, setAppointments] = useState<any[]>([])
+  const [appointments, setAppointments] = useState<Appointment[]>([])
 
   useEffect(() => {
     const fetchAppointments = async () => {

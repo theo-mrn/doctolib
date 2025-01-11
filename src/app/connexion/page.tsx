@@ -87,7 +87,7 @@ export default function ConnexionPage() {
 
   const handleGoogleSignIn = async () => {
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: "http://localhost:3000/connexion",
@@ -99,8 +99,10 @@ export default function ConnexionPage() {
       }
 
       console.log("Redirection vers Google en cours...");
-    } catch (error: any) {
-      setMessage(`Erreur avec Google : ${error.message}`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setMessage(`Erreur avec Google : ${error.message}`);
+      }
     }
   };
 
@@ -163,7 +165,7 @@ export default function ConnexionPage() {
         <CardFooter className="flex flex-col">
           <div className="mt-4 text-sm text-center">
             <Link href="/inscription" className="text-blue-600 hover:underline">
-              Pas encore de compte client ? S'inscrire
+              Pas encore de compte client ? S&apos;inscrire
             </Link>
           </div>
           <div className="mt-2 text-sm text-center">

@@ -22,25 +22,53 @@ const salonSchema = z.object({
   ville: z.string().min(1, "La ville est requise"),
   specialite: z.string().min(1, "La spécialité est requise"),
   description: z.string().optional(),
-  image: z.instanceof(File).optional(),
+  image: z.instanceof(File).optional().nullable(),
   ouverture: z.array(z.object({
     jour: z.string(),
     ouvert: z.boolean(),
     debut: z.string().optional(),
     fin: z.string().optional(),
   })),
-  prestations: z.array(z.string()).min(1, "Au moins une prestation est requise"),
+  prestations: z.array(z.object({
+    nom: z.string().min(1, "Le nom de la prestation est requis")
+  })).min(1, "Au moins une prestation est requise"),
   pricing: z.array(z.object({
     service: z.string(),
     prix: z.number().min(0, "Le prix doit être un nombre positif"),
   })),
 })
 
-type SalonFormValues = z.infer<typeof salonSchema>
 
-const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
+const jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+interface SalonFormValues {
+  nom_salon: string;
+  adresse: string;
+  code_postal: string;
+  ville: string;
+  image?: File | null;
+  specialite: string;
+  description: string;
+  ouverture: Array<{
+    jour: string;
+    ouvert: boolean;
+    debut: string;
+    fin: string;
+  }>;
+  prestations: Array<{
+    nom: string;
+  }>;
+  pricing: Array<{
+    service: string;
+    prix: number;
+  }>;
+}
 
-const PriceInput = ({ value, onChange }) => {
+interface PriceInputProps {
+  value: number;
+  onChange: (value: number) => void;
+}
+
+const PriceInput = ({ value, onChange }: PriceInputProps) => {
   return (
     <Input
       type="number"
@@ -88,14 +116,14 @@ export function AddSalonForm() {
     },
   });
 
-  const { fields: prestationsFields, append: appendPrestation, remove: removePrestation } = useFieldArray({
+  const { fields: prestationsFields, append: appendPrestation, remove: removePrestation } = useFieldArray<SalonFormValues>({
     control: form.control,
-    name: "prestations",
+    name: "prestations" 
   });
 
-  const { fields: pricingFields, append: appendPricing, remove: removePricing } = useFieldArray({
+  const { fields: pricingFields, append: appendPricing, remove: removePricing } = useFieldArray<SalonFormValues>({
     control: form.control,
-    name: "pricing",
+    name: "pricing"
   });
 
   const onSubmit = async (values: SalonFormValues) => {
@@ -125,8 +153,6 @@ export function AddSalonForm() {
 
       console.log('User ID:', user.sub); 
 
-      let imageUrl = '';
-
       const { data: salonData, error: salonError } = await supabase
         .from('salons')
         .insert([{
@@ -142,7 +168,7 @@ export function AddSalonForm() {
               ouvert ? { start: debut, end: fin } : 'Fermé'
             ])
           ),
-          prestations: values.prestations,
+          prestations: values.prestations.map(p => p.nom),
           pricing: Object.fromEntries(values.pricing.map(({ service, prix }) => [service, prix])),
           professionnel_id: user.sub, 
         }])
@@ -159,7 +185,7 @@ export function AddSalonForm() {
       const salonId = salonData.id;
 
       if (values.image) {
-        const { data, error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('image_salons')
           .upload(`public/${salonId}/${values.image.name}`, values.image);
 
@@ -170,19 +196,12 @@ export function AddSalonForm() {
           return;
         }
 
-        const { data: urlData, error: urlError } = supabase
+        const { data: urlData } = supabase
           .storage
           .from('image_salons')
           .getPublicUrl(`public/${salonId}/${values.image.name}`);
 
-        if (urlError) {
-          console.error('Erreur lors de la récupération de l\'URL de l\'image :', urlError.message);
-          setSubmitMessage('Erreur lors de la récupération de l\'URL de l\'image.');
-          setIsSubmitting(false);
-          return;
-        }
-
-        imageUrl = urlData.publicUrl;
+        const imageUrl = urlData.publicUrl;
 
         const { error: updateError } = await supabase
           .from('salons')
@@ -202,7 +221,8 @@ export function AddSalonForm() {
       form.reset();
     } catch (error) {
       console.error('Erreur lors de l\'ajout du salon :', error);
-      setSubmitMessage(`Erreur lors de l'ajout du salon : ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Une erreur inconnue est survenue';
+      setSubmitMessage(`Erreur lors de l&apos;ajout du salon : ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -299,27 +319,33 @@ export function AddSalonForm() {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="image"
-          render={({ field: { value, onChange, ...field } }) => (
-            <FormItem>
-              <FormLabel>Image du salon</FormLabel>
-              <FormControl>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => onChange(e.target.files?.[0])}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+        control={form.control}
+        name="image"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Image du salon</FormLabel>
+            <FormControl>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const file = e.target.files?.[0] || null;
+                  field.onChange(file);
+                }}
+                onBlur={field.onBlur}
+                name={field.name}
+                disabled={field.disabled}
+                ref={field.ref}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
         
         <div>
-          <h3 className="text-lg font-medium mb-2">Horaires d'ouverture</h3>
+          <h3 className="text-lg font-medium mb-2">Horaires d&apos;ouverture</h3>
           {form.watch('ouverture').map((jour, index) => (
             <Card key={jour.jour} className="mb-2">
               <CardContent className="p-4 flex items-center space-x-4">
@@ -373,11 +399,11 @@ export function AddSalonForm() {
             <FormField
               key={field.id}
               control={form.control}
-              name={`prestations.${index}`}
+              name={`prestations.${index}.nom`}
               render={({ field }) => (
                 <FormItem className="flex items-center space-x-2 mb-2">
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} placeholder="Nom de la prestation" />
                   </FormControl>
                   <Button type="button" variant="ghost" size="icon" onClick={() => removePrestation(index)}>
                     <X className="h-4 w-4" />
@@ -391,7 +417,7 @@ export function AddSalonForm() {
             variant="outline"
             size="sm"
             className="mt-2"
-            onClick={() => appendPrestation("")}
+            onClick={() => appendPrestation({ nom: "" })}
           >
             <Plus className="h-4 w-4 mr-2" />
             Ajouter une prestation

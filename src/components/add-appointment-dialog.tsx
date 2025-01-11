@@ -18,13 +18,14 @@ export function AddAppointmentDialog({ isOpen, onClose, onAdd }: AddAppointmentD
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (newAppointment.date && newAppointment.clientName && newAppointment.phoneNumber && newAppointment.service) {
+    if (newAppointment.date && newAppointment.clientName && newAppointment.phoneNumber && newAppointment.service && newAppointment.salonName) {
       onAdd({
         id: Date.now().toString(),
         date: new Date(newAppointment.date),
         clientName: newAppointment.clientName,
         phoneNumber: newAppointment.phoneNumber,
         service: newAppointment.service,
+        salonName: newAppointment.salonName,
       })
       setNewAppointment({})
     }
@@ -42,8 +43,8 @@ export function AddAppointmentDialog({ isOpen, onClose, onAdd }: AddAppointmentD
             <Input
               id="date"
               type="datetime-local"
-              value={newAppointment.date as string}
-              onChange={(e) => setNewAppointment({ ...newAppointment, date: e.target.value })}
+              value={newAppointment.date ? new Date(newAppointment.date).toISOString().slice(0, 16) : ''}
+              onChange={(e) => setNewAppointment({ ...newAppointment, date: new Date(e.target.value) })}
               required
             />
           </div>
@@ -71,6 +72,15 @@ export function AddAppointmentDialog({ isOpen, onClose, onAdd }: AddAppointmentD
               id="service"
               value={newAppointment.service || ''}
               onChange={(e) => setNewAppointment({ ...newAppointment, service: e.target.value })}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="salonName">Nom du salon</Label>
+            <Input
+              id="salonName"
+              value={newAppointment.salonName || ''}
+              onChange={(e) => setNewAppointment({ ...newAppointment, salonName: e.target.value })}
               required
             />
           </div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -61,7 +61,7 @@ export function MessageList() {
     fetchSession()
   }, [])
 
-  const fetchConversations = async () => {
+  const fetchConversations = useCallback(async () => {
     if (!userId) return
 
     const { data: messages, error } = await supabase
@@ -95,17 +95,18 @@ export function MessageList() {
     })
 
     setConversations(Object.values(convMap))
-    if (selectedContact) {
-      const updatedSelectedContact = Object.values(convMap).find(conv => conv.id === selectedContact.id)
-      setSelectedContact(updatedSelectedContact || selectedContact)
-    }
-  }
+    setSelectedContact((prev) => {
+      if (!prev) return prev
+      const updatedSelectedContact = Object.values(convMap).find(conv => conv.id === prev.id)
+      return updatedSelectedContact || prev
+    })
+  }, [userId])
 
   useEffect(() => {
     fetchConversations()
     const interval = setInterval(fetchConversations, 5000) 
     return () => clearInterval(interval)
-  }, [userId])
+  }, [userId, fetchConversations])
 
   const handleSend = async () => {
     if (!newMessage.trim() || !userId || !selectedContact) return

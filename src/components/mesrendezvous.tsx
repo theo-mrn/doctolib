@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Scissors, Calendar, Clock, MapPin, Trash2, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
@@ -17,71 +17,25 @@ import {
 } from "@/components/ui/dialog"
 
 interface Appointment {
-  id: string 
-  date: string
-  time: string
-  salon: string
-  address: string
-  clientName: string
+  id: number;
+  client_id: string;
+  date_heure: string;
+  duree: number;
+  salons: {
+    nom_salon: string;
+    adresse: string;
+  };
 }
 
-const fetchAppointments = async (userId: string) => {
-  const { data, error } = await supabase
-    .from('reservations')
-    .select(`
-      *,
-      salons (
-        nom_salon,
-        adresse
-      )
-    `)
-    .eq('client_id', userId)
-
-  if (error) {
-    console.error('Error fetching appointments:', error.message)
-    return []
-  }
-
-  return data.map((reservation: any) => ({
-    id: reservation.id,
-    date: reservation.date,
-    time: reservation.time,
-    salon: reservation.salons.nom_salon,
-    address: reservation.salons.adresse,
-    clientName: reservation.full_name,
-  }))
+interface AppointmentListProps {
+  appointments: Appointment[];
 }
 
-export default function AppointmentList() {
-  const [appointments, setAppointments] = useState<Appointment[]>([])
-  const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null)
-  const [userId, setUserId] = useState<string | null>(null)
+export default function AppointmentList({ appointments: initialAppointments }: AppointmentListProps) {
+  const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments)
+  const [appointmentToDelete, setAppointmentToDelete] = useState<number | null>(null)
 
-  useEffect(() => {
-    const fetchUserId = async () => {
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      if (authError || !user) {
-        console.error('❌ Erreur lors de la récupération de l\'utilisateur:', authError?.message)
-        return
-      }
-      setUserId(user.id)
-    }
-
-    fetchUserId()
-  }, [])
-
-  useEffect(() => {
-    const getAppointments = async () => {
-      if (userId) {
-        const fetchedAppointments = await fetchAppointments(userId)
-        setAppointments(fetchedAppointments)
-      }
-    }
-
-    getAppointments()
-  }, [userId])
-
-  const cancelAppointment = async (id: string) => {
+  const cancelAppointment = async (id: number) => {
     const { error } = await supabase
       .from('reservations')
       .delete()
@@ -92,7 +46,9 @@ export default function AppointmentList() {
       return
     }
 
-    setAppointments(appointments.filter(appointment => appointment.id !== id))
+    setAppointments(prevAppointments => 
+      prevAppointments.filter(appointment => appointment.id !== id)
+    )
     setAppointmentToDelete(null)
   }
 
@@ -103,27 +59,27 @@ export default function AppointmentList() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Scissors className="h-5 w-5" />
-              {appointment.salon}
+              {appointment.salons.nom_salon}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               <div className="flex items-center text-sm">
                 <User className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span>{appointment.clientName}</span>
+                <span>{appointment.client_id}</span>
               </div>
               <div className="flex items-center text-sm">
                 <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span>{new Date(appointment.date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                <span>{new Date(appointment.date_heure).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
               </div>
               <div className="flex items-center text-sm">
                 <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span>{appointment.time}</span>
+                <span>{appointment.duree} minutes</span>
               </div>
               <Separator />
               <div className="flex items-center text-sm">
                 <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span>{appointment.address}</span>
+                <span>{appointment.salons.adresse}</span>
               </div>
             </div>
           </CardContent>
@@ -144,9 +100,9 @@ export default function AppointmentList() {
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Confirmer l'annulation</DialogTitle>
+                  <DialogTitle>Confirmer l&apos;annulation</DialogTitle>
                   <DialogDescription>
-                    Êtes-vous sûr de vouloir annuler ce rendez-vous pour {appointment.clientName} ? Cette action ne peut pas être annulée.
+                    Êtes-vous sûr de vouloir annuler ce rendez-vous pour {appointment.client_id} ? Cette action ne peut pas être annulée.
                   </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>

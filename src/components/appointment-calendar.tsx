@@ -71,8 +71,8 @@ export function AppointmentCalendar() {
         console.error('❌ Erreur lors de la récupération des réservations :', error.message)
       } else {
         const now = new Date()
-        const upcomingReservations = reservations.filter((reservation: any) => new Date(reservation.date) >= now)
-        setAppointments(upcomingReservations.map((reservation: any) => ({
+        const upcomingReservations = reservations.filter((reservation: { date: string }) => new Date(reservation.date) >= now)
+        setAppointments(upcomingReservations.map((reservation: { id: string; full_name: string; service: string; time: string; date: string }) => ({
           id: reservation.id,
           client: reservation.full_name,
           service: reservation.service,
@@ -112,13 +112,13 @@ export function AppointmentCalendar() {
         .from('reservations')
         .select('id, full_name, service, time, date')
         .eq('salon_id', salonId)
-        .gte('date', formatISO(date.from))
-        .lte('date', formatISO(date.to))
+        .gte('date', date.from ? formatISO(date.from) : undefined)
+        .lte('date', date.to ? formatISO(date.to) : undefined)
 
       if (error) {
         console.error('❌ Erreur lors de la récupération des réservations :', error.message)
       } else {
-        setAppointments(reservations.map((reservation: any) => ({
+        setAppointments(reservations.map((reservation: { id: string; full_name: string; service: string; time: string; date: string }) => ({
           id: reservation.id,
           client: reservation.full_name,
           service: reservation.service,
@@ -158,7 +158,7 @@ export function AppointmentCalendar() {
     }
   }
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     const { error } = await supabase
       .from('reservations')
       .delete()
@@ -277,8 +277,8 @@ export function AppointmentCalendar() {
                                 <PopoverContent className="w-auto p-0" align="start">
                                   <Calendar
                                     mode="single"
-                                    selected={new Date(editingAppointment?.date || '')}
-                                    onSelect={(date) => setEditingAppointment((prev) => prev ? { ...prev, date: date.toISOString() } : null)}
+                                    selected={editingAppointment?.date ? new Date(editingAppointment.date) : undefined}
+                                    onSelect={(date) => date && setEditingAppointment(prev => prev ? { ...prev, date: date.toISOString() } : null)}
                                     locale={fr}
                                   />
                                 </PopoverContent>

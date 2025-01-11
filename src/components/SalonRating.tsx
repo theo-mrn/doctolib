@@ -128,7 +128,7 @@ export default function SalonRating({ salonId, initialRating, initialVotes }: Sa
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg w-full space-y-4">
-      <h2 className="text-xl font-serif text-[#4A332F] mb-3">Note de l'établissement</h2>
+      <h2 className="text-xl font-serif text-[#4A332F] mb-3">Note de l&apos;établissement</h2>
       <p className="text-gray-600">Note moyenne : {rating.toFixed(1)} ({votes} votes)</p>
       <div className="flex space-x-2">
         {[1, 2, 3, 4, 5].map((star) => (

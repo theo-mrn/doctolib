@@ -17,8 +17,13 @@ interface OverviewProps {
   dateRange: DateRange | undefined
 }
 
+interface Reservation {
+  date: string;
+  price: number;
+}
+
 export function Overview({ dateRange }: OverviewProps) {
-  const [data, setData] = useState<any[]>([])
+  const [data, setData] = useState<{ name: string; total: number }[]>([])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,8 +38,8 @@ export function Overview({ dateRange }: OverviewProps) {
       if (error) {
         console.error('Erreur lors de la récupération des revenus:', error.message)
       } else {
-        const sortedReservations = reservations.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-        const formattedData = sortedReservations.map((reservation: any) => ({
+        const sortedReservations = reservations.sort((a: Reservation, b: Reservation) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        const formattedData = sortedReservations.map((reservation: Reservation) => ({
           name: format(parseISO(reservation.date), 'dd/MM', { locale: fr }),
           total: reservation.price
         }))
@@ -45,7 +50,7 @@ export function Overview({ dateRange }: OverviewProps) {
   }, [dateRange])
 
   if (!dateRange?.from || !dateRange?.to) {
-    return <p>Veuillez sélectionner une période pour voir l'aperçu des revenus.</p>
+    return <p>Veuillez sélectionner une période pour voir l&apos;aperçu des revenus.</p>
   }
 
   return (

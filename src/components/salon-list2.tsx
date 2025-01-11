@@ -6,11 +6,10 @@ import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Star, Calendar as CalendarIcon } from 'lucide-react';
-import Link from 'next/link';
 import { Input } from "@/components/ui/input"; 
-import { Calendar } from '@/components/ui/calendar';
 import { format, startOfWeek, addDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import Image from 'next/image';
 
 type Salon = {
   id: number;
@@ -24,11 +23,9 @@ export default function SalonList() {
   const [salons, setSalons] = useState<Salon[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [suggestions, setSuggestions] = useState<Salon[]>([]);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [reservedSlots, setReservedSlots] = useState<string[]>([]);
   const [weekDates, setWeekDates] = useState<Date[]>([]);
-  const [expandedDays, setExpandedDays] = useState<{ [key: string]: boolean }>({});
   const [showAllSlots, setShowAllSlots] = useState(false);
+  const [salonSlots, setSalonSlots] = useState<{ [key: number]: { [key: string]: string[] } }>({});
   const timeSlots = [
     '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
     '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00',
@@ -51,62 +48,35 @@ export default function SalonList() {
     fetchSalons();
   }, []);
 
-  const fetchReservedSlots = async (selectedDate: Date) => {
-    if (!selectedDate) return;
-
-    const formattedDate = selectedDate.toISOString().split('T')[0];
-
-    const { data, error } = await supabase
-      .from('reservations')
-      .select('time')
-      .eq('date', formattedDate);
-
-    if (error) {
-      console.error('❌ Erreur lors de la récupération des créneaux réservés :', error.message);
-      return;
-    }
-
-    const normalizedSlots = data.map((res: { time: string }) => res.time.slice(0, 5));
-    setReservedSlots(normalizedSlots);
-  };
-
-  useEffect(() => {
-    if (selectedDate) {
-      fetchReservedSlots(selectedDate);
-    }
-  }, [selectedDate]);
-
   useEffect(() => {
     const start = startOfWeek(new Date(), { weekStartsOn: 1 });
     const dates = Array.from({ length: 7 }, (_, i) => addDays(start, i));
     setWeekDates(dates);
   }, []);
 
-  const fetchReservedSlotsForWeek = async (salonId: number) => {
-    const slots: { [key: string]: string[] } = {};
+  useEffect(() => {
+    const fetchReservedSlotsForWeek = async (salonId: number) => {
+      const slots: { [key: string]: string[] } = {};
 
-    for (const date of weekDates) {
-      const formattedDate = date.toISOString().split('T')[0];
-      const { data, error } = await supabase
-        .from('reservations')
-        .select('time')
-        .eq('salon_id', salonId)
-        .eq('date', formattedDate);
+      for (const date of weekDates) {
+        const formattedDate = date.toISOString().split('T')[0];
+        const { data, error } = await supabase
+          .from('reservations')
+          .select('time')
+          .eq('salon_id', salonId)
+          .eq('date', formattedDate);
 
-      if (error) {
-        console.error('❌ Erreur lors de la récupération des créneaux réservés :', error.message);
-        continue;
+        if (error) {
+          console.error('❌ Erreur lors de la récupération des créneaux réservés :', error.message);
+          continue;
+        }
+
+        slots[formattedDate] = data.map((res: { time: string }) => res.time.slice(0, 5));
       }
 
-      slots[formattedDate] = data.map((res: { time: string }) => res.time.slice(0, 5));
-    }
+      return slots;
+    };
 
-    return slots;
-  };
-
-  const [salonSlots, setSalonSlots] = useState<{ [key: number]: { [key: string]: string[] } }>({});
-
-  useEffect(() => {
     const fetchAllSlots = async () => {
       const slots: { [key: number]: { [key: string]: string[] } } = {};
       for (const salon of salons) {
@@ -145,10 +115,6 @@ export default function SalonList() {
     setSearchTerm(salon.nom_salon);
     setSuggestions([]);
     inputRef.current?.focus();
-  };
-
-  const toggleExpandDay = (date: string) => {
-    setExpandedDays((prev) => ({ ...prev, [date]: !prev[date] }));
   };
 
   const toggleShowAllSlots = () => {
@@ -198,10 +164,11 @@ export default function SalonList() {
                   <span>{salon.adresse}</span>
                 </div>
                 <div className="relative h-48">
-                  <img
+                  <Image
                     src={salon.image_url || "/placeholder.svg"}
                     alt={salon.nom_salon}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                   />
                   <div className="absolute top-2 right-2 flex items-center gap-1 bg-white px-2 py-1 rounded-full">
                     <Star className="h-4 w-4 text-yellow-400 fill-current" />

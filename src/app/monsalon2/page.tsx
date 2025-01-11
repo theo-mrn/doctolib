@@ -1,11 +1,10 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { DateRange } from "react-day-picker"
-import { addDays, format, parseISO } from "date-fns"
+import { DateRange as DayPickerDateRange } from "react-day-picker"
+import { addDays, format } from "date-fns"
 import { fr } from 'date-fns/locale'
 
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -18,8 +17,9 @@ import { Overview } from "@/components/overview"
 import { UpcomingAppointments } from "@/components/upcoming-appointments"
 import { supabase } from "@/lib/supabase"
 
+
 export default function DashboardPage() {
-  const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
+  const [dateRange, setDateRange] = React.useState<DayPickerDateRange | undefined>({
     from: new Date(),
     to: addDays(new Date(), 20),
   })
@@ -27,7 +27,7 @@ export default function DashboardPage() {
   const [clients, setClients] = useState(0)
 
   useEffect(() => {
-    const calculateRevenue = async (range: DateRange | undefined) => {
+    const calculateRevenue = async (range: DayPickerDateRange | undefined) => {
       if (!range || !range.from || !range.to) return "0.00"
       const { data: reservations, error } = await supabase
         .from('reservations')
@@ -40,11 +40,16 @@ export default function DashboardPage() {
         return "0.00"
       }
 
-      const totalRevenue = reservations.reduce((acc: number, reservation: any) => acc + reservation.price, 0)
+      if (!reservations) return "0.00"
+
+      const totalRevenue = (reservations as { price: number }[]).reduce(
+        (acc, reservation) => acc + reservation.price,
+        0
+      )
       return totalRevenue.toFixed(2)
     }
 
-    const calculateClients = async (range: DateRange | undefined) => {
+    const calculateClients = async (range: DayPickerDateRange | undefined) => {
       if (!range || !range.from || !range.to) return 0
       const { data: reservations, error } = await supabase
         .from('reservations')
@@ -146,7 +151,11 @@ export default function DashboardPage() {
               <CardTitle>Aperçu des revenus</CardTitle>
             </CardHeader>
             <CardContent className="pl-2">
-              <Overview dateRange={dateRange} />
+              {dateRange && dateRange.from && dateRange.to ? (
+                <Overview dateRange={{ from: dateRange.from, to: dateRange.to }} />
+              ) : (
+                <p>Veuillez sélectionner une période valide</p>
+              )}
             </CardContent>
           </Card>
           <Card className="col-span-3">
@@ -157,7 +166,11 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <UpcomingAppointments dateRange={dateRange} />
+              {dateRange && dateRange.from && dateRange.to ? (
+                <UpcomingAppointments dateRange={{ from: dateRange.from, to: dateRange.to }} />
+              ) : (
+                <p>Veuillez sélectionner une période valide</p>
+              )}
             </CardContent>
           </Card>
         </div>

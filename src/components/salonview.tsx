@@ -12,15 +12,19 @@ import { Messagerie } from '@/components/Messagerie'
 
 
 type Salon = {
-  id: number;
+  id: string;  // Changé de number à string
   nom_salon: string;
   adresse: string;
   description: string;
+  code_postal: string;
+  ville: string;  // Ajout de la propriété ville
   lat?: number;
   lng?: number;
   image_url?: string;
   hours?: Record<string, string>;
   services?: string[];
+  note: number;  // Retiré l'optionnel pour correspondre au type attendu
+  nombre_votes: number;  // Retiré l'optionnel pour correspondre au type attendu
 };
 
 const defaultSalon: Partial<Salon> = {
@@ -81,11 +85,15 @@ export default function SalonBooking() {
           <div className="grid lg:grid-cols-2 gap-8">
             <SalonInfo salon={salon} />
             <div className="flex flex-col items-center">
-              <SalonRating salonId={salon.id} initialRating={salon.note} initialVotes={salon.nombre_votes} />
+              <SalonRating 
+                salonId={parseInt(salon.id)} 
+                initialRating={salon.note || 0} 
+                initialVotes={salon.nombre_votes || 0} 
+              />
               <div className="bg-white p-6 rounded-lg shadow-lg w-full space-y-4 mt-6">
                 <h2 className="text-xl font-serif text-[#4A332F] mb-3">Réservation</h2>
                 <p className="text-gray-600">
-                  Réservez votre rendez-vous en ligne en quelques clics. Choisissez le service souhaité et l'heure qui vous convient.
+                  Réservez votre rendez-vous en ligne en quelques clics. Choisissez le service souhaité et l&apos;heure qui vous convient.
                 </p>
                 <button
                   onClick={() => setIsBookingFormOpen(true)}
@@ -96,7 +104,10 @@ export default function SalonBooking() {
               </div>
               <div className="bg-white p-6 rounded-lg shadow-lg w-full space-y-4 mt-6">
                 <h2 className="text-xl font-serif text-[#4A332F] mb-3">Messagerie</h2>
-                <Messagerie salonId={salon.id} />
+                <Messagerie 
+                  salonId={parseInt(salon.id)} 
+                  otherPersonName={salon.nom_salon}
+                />
               </div>
             </div>
           </div>
