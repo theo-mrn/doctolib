@@ -1,11 +1,17 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Scissors, Calendar, Clock, MapPin, Trash2, User } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
+import { useState } from 'react';
+import { Scissors, Calendar, Clock, MapPin, Trash2, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { supabase } from "@/lib/supabase"; 
+import dayjs from 'dayjs';
+import { useToast } from "@/hooks/use-toast"; 
+import 'dayjs/locale/fr';
+
+dayjs.locale('fr');
+
 import {
   Dialog,
   DialogContent,
@@ -18,8 +24,10 @@ import {
 
 interface Appointment {
   id: number;
+  full_name: string;
   client_id: string;
-  date_heure: string;
+  date: string;
+  time: string;
   duree: number;
   salons: {
     nom_salon: string;
@@ -32,25 +40,36 @@ interface AppointmentListProps {
 }
 
 export default function AppointmentList({ appointments: initialAppointments }: AppointmentListProps) {
-  const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments)
-  const [appointmentToDelete, setAppointmentToDelete] = useState<number | null>(null)
+  const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
+  const { toast } = useToast();
+  const [appointmentToDelete, setAppointmentToDelete] = useState<number | null>(null);
 
   const cancelAppointment = async (id: number) => {
     const { error } = await supabase
       .from('reservations')
       .delete()
-      .eq('id', id)
+      .eq('id', id);
 
     if (error) {
-      console.error('Error deleting appointment:', error.message)
-      return
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'annulation du rendez-vous.",
+        variant: "destructive",
+      });
+      console.error('Error deleting appointment:', error.message);
+      return;
     }
 
-    setAppointments(prevAppointments => 
+    setAppointments(prevAppointments =>
       prevAppointments.filter(appointment => appointment.id !== id)
-    )
-    setAppointmentToDelete(null)
-  }
+    );
+
+    toast({
+      title: "Rendez-vous annulé",
+      description: "Le rendez-vous a bien été annulé.",
+    });
+    setAppointmentToDelete(null);
+  };
 
   return (
     <div className="space-y-4">
@@ -66,15 +85,15 @@ export default function AppointmentList({ appointments: initialAppointments }: A
             <div className="space-y-3">
               <div className="flex items-center text-sm">
                 <User className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span>{appointment.client_id}</span>
+                <span>{appointment.full_name}</span>
               </div>
               <div className="flex items-center text-sm">
                 <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span>{new Date(appointment.date_heure).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                <span>{dayjs(appointment.date).format('dddd D MMMM YYYY')}</span>
               </div>
               <div className="flex items-center text-sm">
                 <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span>{appointment.duree} minutes</span>
+                <span>{dayjs(`${appointment.date}T${appointment.time}`).format('HH:mm')}</span>
               </div>
               <Separator />
               <div className="flex items-center text-sm">
@@ -102,12 +121,17 @@ export default function AppointmentList({ appointments: initialAppointments }: A
                 <DialogHeader>
                   <DialogTitle>Confirmer l&apos;annulation</DialogTitle>
                   <DialogDescription>
-                    Êtes-vous sûr de vouloir annuler ce rendez-vous pour {appointment.client_id} ? Cette action ne peut pas être annulée.
+                    Êtes-vous sûr de vouloir annuler ce rendez-vous pour {appointment.full_name} ? Cette action est irréversible.
                   </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setAppointmentToDelete(null)}>Annuler</Button>
-                  <Button variant="destructive" onClick={() => appointmentToDelete && cancelAppointment(appointmentToDelete)}>Confirmer</Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => appointmentToDelete && cancelAppointment(appointmentToDelete)}
+                  >
+                    Confirmer
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -115,6 +139,5 @@ export default function AppointmentList({ appointments: initialAppointments }: A
         </Card>
       ))}
     </div>
-  )
+  );
 }
-

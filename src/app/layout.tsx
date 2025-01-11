@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import {Navbar} from '@/components/navbar'
+import { Toaster } from "@/components/ui/toaster";
+
 
 
 const geistSans = Geist({
@@ -30,6 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <div className="z-50 hover:z-50"></div>
+        <Toaster />
          <Navbar />
         {children}
       </body>
