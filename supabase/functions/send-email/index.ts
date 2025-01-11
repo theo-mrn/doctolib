@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.207.0/http/server.ts";
 import type { ServeInit } from "https://deno.land/std@0.207.0/http/server.ts";
 
 // Chargement de la clé API depuis les variables d'environnement
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") || "";
+const RESEND_API_KEY = Deno.env.get("https://sijvzedmeayxyqybephs.supabase.co") || "";
 const RESEND_API_URL = "https://api.resend.com/emails";
 
 // Fonction utilitaire pour formater une date en français

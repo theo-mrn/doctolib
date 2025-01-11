@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 
-// Utilise une exportation nommée pour gérer correctement la méthode POST
 export async function POST(req: Request) {
     console.log("👉 Requête reçue avec la méthode POST");
     
@@ -13,7 +12,6 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Email et date sont requis." }, { status: 400 });
         }
 
-        // Appel à Resend
         const response = await fetch("https://api.resend.com/emails", {
             method: 'POST',
             headers: {
