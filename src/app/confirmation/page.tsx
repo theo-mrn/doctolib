@@ -1,14 +1,23 @@
-'use client'
+'use client';
+export const dynamic = 'force-dynamic'; // Désactive le rendu statique et force le rendu serveur (SSR)
 
 import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MapPin, Calendar, Clock, Scissors, User, Phone, Check } from 'lucide-react'
 import Link from 'next/link'
 
 export default function ConfirmationPage() {
+  return (
+    <Suspense fallback={<p>Chargement...</p>}>
+      <ConfirmationContent />
+    </Suspense>
+  )
+}
+
+const ConfirmationContent = () => {
   const searchParams = useSearchParams()
-  
   const salonName = searchParams.get('salonName')
   const salonAddress = searchParams.get('salonAddress')
   const service = searchParams.get('service')
@@ -106,4 +115,3 @@ export default function ConfirmationPage() {
     </div>
   )
 }
-
