@@ -1,10 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { addDays, format } from "date-fns"
+import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import { CalendarIcon, MoreHorizontal, Pencil, Trash } from 'lucide-react'
-import { DateRange } from "react-day-picker"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -34,11 +33,8 @@ import { supabase } from "@/lib/supabase"
 import { formatISO } from "date-fns"
 
 export function AppointmentCalendar() {
-  const [date, setDate] = useState<DateRange | undefined>({
-    from: new Date(),
-    to: addDays(new Date(), 7),
-  })
-  const [appointments, setAppointments] = useState<{ id: string; client: string; service: string; time: string; date: string }[]>([])
+  const [date, setDate] = useState<Date | undefined>(new Date())
+  const [appointments, setAppointments] = useState<{ id: string; client: string; service: string; time: string; date: string; price: number }[]>([])
   const [editingAppointment, setEditingAppointment] = useState<typeof appointments[0] | null>(null)
 
   useEffect(() => {
@@ -64,7 +60,7 @@ export function AppointmentCalendar() {
 
       const { data: reservations, error } = await supabase
         .from('reservations')
-        .select('id, full_name, service, time, date')
+        .select('id, full_name, service, time, date, price')
         .eq('salon_id', salonId)
 
       if (error) {
@@ -72,12 +68,13 @@ export function AppointmentCalendar() {
       } else {
         const now = new Date()
         const upcomingReservations = reservations.filter((reservation: { date: string }) => new Date(reservation.date) >= now)
-        setAppointments(upcomingReservations.map((reservation: { id: string; full_name: string; service: string; time: string; date: string }) => ({
+        setAppointments(upcomingReservations.map((reservation: { id: string; full_name: string; service: string; time: string; date: string; price: number }) => ({
           id: reservation.id,
           client: reservation.full_name,
           service: reservation.service,
           time: reservation.time,
           date: reservation.date,
+          price: reservation.price,
         })))
       }
     }
@@ -86,7 +83,7 @@ export function AppointmentCalendar() {
   }, [])
 
   useEffect(() => {
-    if (!date?.from || !date?.to) return
+    if (!date) return
 
     const fetchAppointmentsInRange = async () => {
       const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -110,20 +107,20 @@ export function AppointmentCalendar() {
 
       const { data: reservations, error } = await supabase
         .from('reservations')
-        .select('id, full_name, service, time, date')
+        .select('id, full_name, service, time, date, price')
         .eq('salon_id', salonId)
-        .gte('date', date.from ? formatISO(date.from) : undefined)
-        .lte('date', date.to ? formatISO(date.to) : undefined)
+        .eq('date', formatISO(date))
 
       if (error) {
         console.error('❌ Erreur lors de la récupération des réservations :', error.message)
       } else {
-        setAppointments(reservations.map((reservation: { id: string; full_name: string; service: string; time: string; date: string }) => ({
+        setAppointments(reservations.map((reservation: { id: string; full_name: string; service: string; time: string; date: string; price: number }) => ({
           id: reservation.id,
           client: reservation.full_name,
           service: reservation.service,
           time: reservation.time,
           date: reservation.date,
+          price: reservation.price,
         })))
       }
     }
@@ -189,15 +186,8 @@ export function AppointmentCalendar() {
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {date?.from ? (
-                  date.to ? (
-                    <>
-                      {format(date.from, "dd/MM/yyyy", { locale: fr })} -{" "}
-                      {format(date.to, "dd/MM/yyyy", { locale: fr })}
-                    </>
-                  ) : (
-                    format(date.from, "dd/MM/yyyy", { locale: fr })
-                  )
+                {date ? (
+                  format(date, "dd/MM/yyyy", { locale: fr })
                 ) : (
                   <span>Choisir une date</span>
                 )}
@@ -206,11 +196,10 @@ export function AppointmentCalendar() {
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 initialFocus
-                mode="range"
-                defaultMonth={date?.from}
+                mode="single"
+                defaultMonth={date}
                 selected={date}
                 onSelect={setDate}
-                numberOfMonths={2}
                 locale={fr}
               />
             </PopoverContent>
@@ -227,10 +216,12 @@ export function AppointmentCalendar() {
                   <div className="space-y-1">
                     <p className="font-medium">{apt.client}</p>
                     <p className="text-sm text-muted-foreground">{apt.service}</p>
-                    <p className="text-sm text-muted-foreground">{apt.time.slice(0, 5)}</p> {/* Afficher uniquement les heures */}
+                    <p className="text-sm font-bold">{apt.price} €</p> {/* Afficher le prix en gras */}
                   </div>
                   <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">{format(new Date(apt.date), "dd/MM")}</p> {/* Formater la date en dd/MM */}
+                    <p className="text-sm text-muted-foreground">
+                      {format(new Date(apt.date), "dd/MM")} à {apt.time.slice(0, 5)}
+                    </p> {/* Formater la date en dd/MM et afficher l'heure */}
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

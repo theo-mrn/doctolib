@@ -28,18 +28,16 @@ export function CalendarDateRangePicker({
 
   const selectThisWeek = () => {
     const today = new Date()
-    setDate({
-      from: startOfWeek(today, { weekStartsOn: 1 }),
-      to: endOfWeek(today, { weekStartsOn: 1 }),
-    })
+    const start = startOfWeek(today, { weekStartsOn: 1 })
+    const end = endOfWeek(today, { weekStartsOn: 1 }) > today ? today : endOfWeek(today, { weekStartsOn: 1 })
+    setDate({ from: start, to: end })
   }
 
   const selectThisMonth = () => {
     const today = new Date()
-    setDate({
-      from: startOfMonth(today),
-      to: endOfMonth(today),
-    })
+    const start = startOfMonth(today)
+    const end = endOfMonth(today) > today ? today : endOfMonth(today)
+    setDate({ from: start, to: end })
   }
 
   const selectLastWeek = () => {
@@ -96,6 +94,7 @@ export function CalendarDateRangePicker({
             onSelect={setDate}
             numberOfMonths={2}
             locale={fr}
+            disabled={{ after: new Date() }}
           />
           <div className="grid grid-cols-2 gap-2 p-2">
             <Button onClick={selectThisWeek} variant="outline" size="sm">Cette semaine</Button>

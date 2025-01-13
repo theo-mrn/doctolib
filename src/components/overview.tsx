@@ -82,7 +82,7 @@ export function Overview({ dateRange }: OverviewProps) {
                 formatter={(value: number) => [`${value} €`, "Revenus"]}
                 labelFormatter={(label) => `Date: ${label}`}
               />
-              <Bar dataKey="total" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="total" fill="black" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </TabsContent>
@@ -107,7 +107,7 @@ export function Overview({ dateRange }: OverviewProps) {
                 formatter={(value: number) => [`${value} €`, "Revenus"]}
                 labelFormatter={(label) => `Date: ${label}`}
               />
-              <Line type="monotone" dataKey="total" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+              <Line type="monotone" dataKey="total" stroke="black" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
             </LineChart>
           </ResponsiveContainer>
         </TabsContent>

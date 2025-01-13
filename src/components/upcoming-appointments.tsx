@@ -15,6 +15,7 @@ type Appointment = {
   full_name: string;
   service: string;
   time: string;
+  price: number;
 };
 
 export function UpcomingAppointments({ dateRange }: { dateRange: DateRange }) {
@@ -55,11 +56,11 @@ export function UpcomingAppointments({ dateRange }: { dateRange: DateRange }) {
             <div className="ml-4 space-y-1">
               <p className="text-sm font-medium leading-none">{appointment.full_name}</p>
               <p className="text-sm text-muted-foreground">
-                {appointment.service} - {appointment.time}
+                {appointment.service} ({format(parseISO(appointment.date), 'dd MMMM yyyy', { locale: fr })})
               </p>
             </div>
-            <div className="ml-auto font-medium">
-              {format(parseISO(appointment.date), 'dd MMMM yyyy', { locale: fr })}
+            <div className="ml-auto font-bold">
+              {appointment.price}€
             </div>
           </div>
         ))
