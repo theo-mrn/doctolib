@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Scissors } from 'lucide-react'
+import { Scissors, User } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from 'next/navigation'
@@ -14,9 +14,17 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userInitials, setUserInitials] = useState('')
   const router = useRouter()
 
   useEffect(() => {
@@ -24,6 +32,9 @@ export function Navbar() {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         setIsLoggedIn(true)
+        // Set user initials for avatar fallback
+        const initials = user.email ? user.email.substring(0, 2).toUpperCase() : 'U'
+        setUserInitials(initials)
       } else {
         setIsLoggedIn(false)
       }
@@ -103,12 +114,25 @@ export function Navbar() {
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
             {isLoggedIn ? (
-              <Button 
-                variant="outline" 
-                onClick={handleLogout}
-              >
-                Déconnexion
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src="/avatars/01.png" alt="@username" />
+                      <AvatarFallback>{userInitials}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuItem onClick={() => router.push('/moncompte')}>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Mon compte</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    Se déconnecter
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <div className="space-x-4">
                 <Button variant="outline" onClick={() => router.push('/connexion')}>
