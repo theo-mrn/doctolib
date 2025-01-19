@@ -4,27 +4,24 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import SalonInfo from './SalonInfo'; 
-import SalonBookingForm from './SalonBookingForm';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import SalonRating from './SalonRating';
-import { Messagerie } from '@/components/Messagerie'
-
+import SalonDetails from './SalonDetails';
 
 type Salon = {
-  id: string;  // Changé de number à string
+  id: string;  
   nom_salon: string;
   adresse: string;
   description: string;
   code_postal: string;
-  ville: string;  // Ajout de la propriété ville
+  ville: string;  
   lat?: number;
   lng?: number;
   image_url?: string;
   hours?: Record<string, string>;
   services?: string[];
-  note: number;  // Retiré l'optionnel pour correspondre au type attendu
-  nombre_votes: number;  // Retiré l'optionnel pour correspondre au type attendu
+  note: number;
+  nombre_votes: number;
 };
 
 const defaultSalon: Partial<Salon> = {
@@ -43,10 +40,8 @@ const defaultSalon: Partial<Salon> = {
 export default function SalonBooking() {
   const { id } = useParams();
   const [salon, setSalon] = useState<Salon | null>(null);
-  const [isBookingFormOpen, setIsBookingFormOpen] = useState(false);
   const blurAmount = '7px'; 
 
-  
   useEffect(() => {
     const fetchSalon = async () => {
       const { data, error } = await supabase
@@ -84,47 +79,16 @@ export default function SalonBooking() {
         <div className="container mx-auto px-4 py-8 max-w-7xl">
           <div className="grid lg:grid-cols-2 gap-8">
             <SalonInfo salon={salon} />
-            <div className="flex flex-col items-center">
-              <SalonRating 
-                salonId={parseInt(salon.id)} 
-                initialRating={salon.note || 0} 
-                initialVotes={salon.nombre_votes || 0} 
-              />
-              <div className="bg-white p-6 rounded-lg shadow-lg w-full space-y-4 mt-6">
-                <h2 className="text-xl font-serif text-[#4A332F] mb-3">Réservation</h2>
-                <p className="text-gray-600">
-                  Réservez votre rendez-vous en ligne en quelques clics. Choisissez le service souhaité et l&apos;heure qui vous convient.
-                </p>
-                <button
-                  onClick={() => setIsBookingFormOpen(true)}
-                  className="bg-[#8b4513] text-white font-bold py-2 px-4 rounded-lg hover:bg-[#8B4513] w-full"
-                >
-                  Réserver
-                </button>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-lg w-full space-y-4 mt-6">
-                <h2 className="text-xl font-serif text-[#4A332F] mb-3">Messagerie</h2>
-                <Messagerie 
-                  salonId={parseInt(salon.id)} 
-                  otherPersonName={salon.nom_salon}
-                />
-              </div>
-            </div>
+            <SalonDetails 
+              salonId={parseInt(salon.id)} 
+              salonName={salon.nom_salon}
+              initialRating={salon.note || 0} 
+              initialVotes={salon.nombre_votes || 0} 
+              hours={salon.hours || defaultSalon.hours}
+            />
           </div>
         </div>
       </div>
-
-      {isBookingFormOpen && (
-        <div className="fixed inset-0 z-30 bg-white p-8 overflow-auto">
-          <button
-            onClick={() => setIsBookingFormOpen(false)}
-            className="absolute top-4 right-4 text-[#8b4513] font-bold"
-          >
-            Fermer
-          </button>
-          <SalonBookingForm salon={salon} />
-        </div>
-      )}
     </div>
   );
 }

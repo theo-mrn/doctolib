@@ -8,7 +8,7 @@ type SalonRatingProps = {
   initialVotes: number;
 };
 
-export default function SalonRating({ salonId, initialRating, initialVotes }: SalonRatingProps) {
+function SalonRating({ salonId, initialRating, initialVotes }: SalonRatingProps) {
   const [rating, setRating] = useState(initialRating);
   const [votes, setVotes] = useState(initialVotes);
   const [userRating, setUserRating] = useState(0);
@@ -141,6 +141,20 @@ export default function SalonRating({ salonId, initialRating, initialVotes }: Sa
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+type SalonDetailsProps = {
+  salonId: number;
+  initialRating: number;
+  initialVotes: number;
+};
+
+export default function SalonDetails({ salonId, initialRating, initialVotes }: SalonDetailsProps) {
+  return (
+    <div>
+      <SalonRating salonId={salonId} initialRating={initialRating} initialVotes={initialVotes} />
     </div>
   );
 }

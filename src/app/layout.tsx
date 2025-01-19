@@ -31,9 +31,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="z-50 hover:z-50"></div>
+        
         <Toaster />
-         <Navbar />
+        <div className="absolute w-full z-50">
+        <Navbar />
+        </div>
+    
         {children}
       </body>
     </html>

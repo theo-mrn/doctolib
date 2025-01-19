@@ -169,10 +169,6 @@ const handleSaveChanges = async () => {
 
   const daysOfWeek = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
 
-  const mapUrl = coords
-    ? `https://www.openstreetmap.org/export/embed.html?bbox=${coords.lng - 0.002},${coords.lat - 0.002},${coords.lng + 0.002},${coords.lat + 0.002}&layer=mapnik&marker=${coords.lat},${coords.lng}`
-    : null;
-
   return (
     <Card>
       <CardContent className="p-6">
@@ -203,28 +199,6 @@ const handleSaveChanges = async () => {
 
               <Separator />
 
-              {/* Carte */}
-              <div>
-                <h2 className="text-xl font-serif text-[#4A332F] mb-3">Carte interactive</h2>
-                <div className="h-[300px] rounded-lg overflow-hidden">
-                  {mapUrl ? (
-                    <iframe
-                      width="100%"
-                      height="100%"
-                      frameBorder="0"
-                      scrolling="no"
-                      src={mapUrl}
-                      allowFullScreen
-                      title="OpenStreetMap View"
-                    ></iframe>
-                  ) : (
-                    <p className="text-gray-500">Chargement de la carte...</p>
-                  )}
-                </div>
-              </div>
-
-              <Separator />
-
               {/* Services */}
               <div>
                 <h2 className="text-xl font-serif text-[#4A332F] mb-3">Services</h2>
@@ -236,27 +210,6 @@ const handleSaveChanges = async () => {
                       ))}
                     </ul>
                   )}
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Horaires */}
-              <div>
-                <h2 className="text-xl font-serif text-[#4A332F] mb-3">Horaires</h2>
-                <div className="space-y-2">
-                  {Object.entries(salon.ouverture || {}).map(([day, hours]) => (
-                    <div key={day} className="flex justify-between items-center text-gray-600">
-                      <span className="capitalize">{day}</span>
-                      {hours === 'Fermé' ? (
-                        <span>Fermé</span>
-                      ) : (
-                        <span>
-                          {hours?.start} - {hours?.end}
-                        </span>
-                      )}
-                    </div>
-                  ))}
                 </div>
               </div>
 
