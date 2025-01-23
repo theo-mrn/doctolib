@@ -1,7 +1,7 @@
 import SalonRating from './SalonRating';
 import { useState } from 'react';
 import SalonBookingForm from './SalonBookingForm';
-import { Messagerie } from '@/components/Messagerie';
+// Suppression de l'import Messagerie
 
 type SalonDetailsProps = {
   salonId: number;
@@ -46,13 +46,6 @@ export default function SalonDetails({ salonId, salonName, initialRating, initia
             </div>
           ))}
         </div>
-      </div>
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full space-y-4 mt-6">
-        <h2 className="text-xl font-serif text-[#4A332F] mb-3">Messagerie</h2>
-        <Messagerie 
-          salonId={salonId} 
-          otherPersonName={salonName}
-        />
       </div>
 
       {isBookingFormOpen && (

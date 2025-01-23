@@ -40,7 +40,7 @@ export default function SalonRecherche() {
   const handleSearch = () => {
     if (selectedCity && selectedCity.codesPostaux.length > 0) {
       const postalCodeParams = selectedCity.codesPostaux.join(',');
-      router.push(`/test?codePostal=${encodeURIComponent(postalCodeParams)}`);
+      router.push(`/test?codePostal=${encodeURIComponent(postalCodeParams)}&service=${encodeURIComponent(serviceQuery)}`);
     } else {
       alert("Veuillez sélectionner une ville avec un code postal valide.");
     }
@@ -93,7 +93,7 @@ export default function SalonRecherche() {
                   className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                   onClick={() => {
                     setServiceQuery(service)
-                    setServiceSuggestions([]) // Effacer les suggestions
+                    setServiceSuggestions([]) 
                   }}
                 >
                   {service}

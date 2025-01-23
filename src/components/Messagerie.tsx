@@ -106,7 +106,7 @@ export function Messagerie({ otherPersonName, otherPersonAvatar, salonId }: Mess
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto h-[500px] flex flex-col">
+    <Card className="w-full mx-auto h-full flex flex-col">
       <CardHeader className="flex flex-row items-center gap-4 p-4">
         <Avatar>
           <AvatarImage src={otherPersonAvatar || "/placeholder.svg"} alt={otherPersonName} />

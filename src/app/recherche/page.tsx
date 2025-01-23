@@ -3,7 +3,7 @@ import SalonRecherche from "@/components/recherche"
 
 export default function Page() {
   return (
-    <main className="relative min-h-screen flex items-center justify-center">
+    <main className="overflow-hidden relative min-h-screen flex items-center justify-center">
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-black/40" />
         <img

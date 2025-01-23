@@ -32,7 +32,6 @@ export function Navbar() {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         setIsLoggedIn(true)
-        // Set user initials for avatar fallback
         const initials = user.email ? user.email.substring(0, 2).toUpperCase() : 'U'
         setUserInitials(initials)
       } else {
@@ -58,7 +57,7 @@ export function Navbar() {
       <div className="mx-auto px-4 sm:px-6 lg:px-8 z-50">
         <div className="flex justify-between h-16 z-50 hover:z-50">
           <div className="flex">
-            <Link href="/dashboard" className="flex-shrink-0 flex items-center">
+            <Link href="/recherche" className="flex-shrink-0 flex items-center">
               <Scissors className="h-8 w-8 text-[#8B4513]" />
               <span className="ml-2 text-xl font-bold text-gray-900">MonSalon</span>
             </Link>

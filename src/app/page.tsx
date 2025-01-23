@@ -36,8 +36,8 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <main className="flex-1">
+    <div className="flex flex-col min-h-screen bg-gray-50 pt-[var(--navbar-height)]">
+      <main className="flex-1 overflow-auto">
         <section className="w-full  py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-r from-primary to-primary-foreground">
           <div className="container px-12">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">

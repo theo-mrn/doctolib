@@ -17,10 +17,10 @@ import { useRouter } from 'next/navigation';
 
 type Props = {
   salon: {
-    id: string;  // Changé de number à string
+    id: string;
     nom_salon: string;
     adresse: string;
-    pricing?: Record<string, number>;
+    pricing?: Record<string, Record<string, { price: number; duration: string; description: string }>>;
   };
 };
 
@@ -29,8 +29,7 @@ const timeSlots = [
   '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00',
 ];
 
-// Modifier la fonction fetchPricing pour accepter un string
-const fetchPricing = async (salonId: string): Promise<Record<string, number>> => {
+const fetchPricing = async (salonId: string): Promise<Record<string, Record<string, { price: number; duration: string; description: string }>>> => {
   const { data, error } = await supabase
     .from('salons')
     .select('pricing')
@@ -53,7 +52,7 @@ export default function SalonBookingForm({ salon }: Props) {
   const [phone, setPhone] = useState('');
   const [reservedSlots, setReservedSlots] = useState<string[]>([]);
   const [profileError, setProfileError] = useState<string | null>(null);
-  const [pricing, setPricing] = useState<Record<string, number>>(salon.pricing || {});
+  const [pricing, setPricing] = useState<Record<string, Record<string, { price: number; duration: string; description: string }>>>(salon.pricing || {});
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const router = useRouter();
 
@@ -137,7 +136,8 @@ export default function SalonBookingForm({ salon }: Props) {
             return;
         }
 
-        const price = pricing[selectedService];
+        const [category, service] = selectedService.split(' - ');
+        const price = pricing[category][service].price;
 
         const { error } = await supabase
             .from('reservations')
@@ -162,7 +162,6 @@ export default function SalonBookingForm({ salon }: Props) {
         setReservedSlots((prev) => [...prev, selectedTime]);
         setSelectedTime(null);
 
-        // ✅ Utilisation de l'API sécurisée Next.js (proxy)
         try {
             const emailResponse = await fetch('/api/send-email', {
                 method: "POST",
@@ -204,10 +203,12 @@ export default function SalonBookingForm({ salon }: Props) {
               <SelectValue placeholder="Sélectionnez un service" />
             </SelectTrigger>
             <SelectContent>
-              {Object.keys(pricing).map((service, index) => (
-                <SelectItem key={index} value={service}>
-                  {service} - {pricing[service]}€
-                </SelectItem>
+              {Object.entries(pricing).map(([category, services]) => (
+                Object.entries(services).map(([service, details], index) => (
+                  <SelectItem key={index} value={`${category} - ${service}`}>
+                    {category} - {service} - {details.price}€
+                  </SelectItem>
+                ))
               ))}
             </SelectContent>
           </Select>
