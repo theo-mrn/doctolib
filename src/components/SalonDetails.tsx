@@ -56,7 +56,7 @@ export default function SalonDetails({ salonId, salonName, initialRating, initia
           >
             Fermer
           </button>
-          <SalonBookingForm salon={{ id: salonId.toString(), nom_salon: salonName }} />
+          <SalonBookingForm salon={{ id: salonId.toString(), nom_salon: salonName, adresse: "Adresse du salon" }} />
         </div>
       )}
     </div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef, useCallback } from "react"
+import { useEffect, useState, useRef, useCallback, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { Card, CardContent } from "@/components/ui/card"
@@ -202,7 +202,7 @@ export default function SalonList() {
     }
   }, [hoveredSalon, map])
 
-  const timeSlots = [
+  const timeSlots = useMemo(() => [
     "09:00",
     "09:30",
     "10:00",
@@ -216,7 +216,7 @@ export default function SalonList() {
     "16:00",
     "16:30",
     "17:00",
-  ]
+  ], [])
 
   const toggleExpand = (salonId: number) => {
     setExpandedSalons((prev) => ({
@@ -291,7 +291,7 @@ export default function SalonList() {
     })
 
     setFilteredSalons(filtered)
-  }, [salons, searchTerm, minRating, availableOnly, sortOption])
+  }, [salons, searchTerm, minRating, availableOnly, sortOption, timeSlots])
 
   useEffect(() => {
     applyFiltersAndSort()
@@ -341,7 +341,7 @@ export default function SalonList() {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch id="available" checked={availableOnly} onCheckedChange={setAvailableOnly} />
-                  <Label htmlFor="available">Disponible aujourd'hui uniquement</Label>
+                  <Label htmlFor="available">Disponible aujourd&apos;hui uniquement</Label>
                 </div>
               </div>
             </SheetContent>

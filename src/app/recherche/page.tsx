@@ -1,15 +1,18 @@
 "use client"
 import SalonRecherche from "@/components/recherche"
+import Image from 'next/image'
 
 export default function Page() {
   return (
     <main className="overflow-hidden relative min-h-screen flex items-center justify-center">
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-black/40" />
-        <img
+        <Image
           src="/salon.jpg"
           alt="Background"
-          className="w-full h-full object-cover"
+          fill
+          className="object-cover"
+          priority
         />
       </div>
 

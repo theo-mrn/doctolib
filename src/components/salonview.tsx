@@ -86,7 +86,7 @@ export default function SalonBooking() {
             salonName={salon.nom_salon}
             initialRating={salon.note || 0} 
             initialVotes={salon.nombre_votes || 0} 
-            hours={salon.hours || defaultSalon.hours}
+            hours={salon.hours as Record<string, string>}
           />
         </div>
       </div>

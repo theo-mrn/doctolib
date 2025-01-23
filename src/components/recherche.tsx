@@ -5,9 +5,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useRouter } from 'next/navigation';
 
+type CitySuggestion = {
+  nom: string;
+  codesPostaux: string[];
+};
+
 export default function SalonRecherche() {
   const [query, setQuery] = useState("")
-  const [suggestions, setSuggestions] = useState([])
+  const [suggestions, setSuggestions] = useState<CitySuggestion[]>([])
   const [serviceQuery, setServiceQuery] = useState("")
   const [serviceSuggestions, setServiceSuggestions] = useState([
     "Coiffeur", "Coiffeur homme", "Coiffeur femme", "Barbier", "Manucure", 
@@ -17,7 +22,7 @@ export default function SalonRecherche() {
     "Tatouage", "Piercing", "Soins des pieds", "Soins des mains", "Onglerie", 
     "Beauté des pieds", "Beauté des mains", "Relooking", "Conseil en image"
   ])
-  const [selectedCity, setSelectedCity] = useState(null)
+  const [selectedCity, setSelectedCity] = useState<{ nom: string; codesPostaux: string[] } | null>(null)
 
   const router = useRouter();
 
@@ -31,7 +36,7 @@ export default function SalonRecherche() {
     setSuggestions(data)
   }
 
-  const handleCitySelect = (city) => {
+  const handleCitySelect = (city: { nom: string; codesPostaux: string[] }) => {
     setQuery(city.nom)
     setSuggestions([]) // Effacer les suggestions
     setSelectedCity(city) // Stocker la ville sélectionnée

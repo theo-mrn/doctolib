@@ -20,11 +20,23 @@ interface Category {
   services: Service[];
 }
 
+interface ServiceDetails {
+  description?: string;
+  duration: string;
+  price: number;
+}
+
+interface SalonPricing {
+  [category: string]: {
+    [service: string]: ServiceDetails;
+  };
+}
+
 interface BeautyServicesProps {
   salon: {
     id: string;
     prestations?: string[];
-    pricing?: Record<string, any>;
+    pricing?: SalonPricing;
   };
 }
 
