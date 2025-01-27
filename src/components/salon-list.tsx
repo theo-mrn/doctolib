@@ -12,7 +12,6 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import Image from "next/image"
 import { format, startOfWeek, addDays, isToday } from "date-fns"
 import { fr } from "date-fns/locale"
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from "@react-google-maps/api"
@@ -520,7 +519,7 @@ export default function SalonList() {
       {selectedSalonImages && (
         <Dialog open={!!selectedSalonImages} onOpenChange={() => setSelectedSalonImages(null)}>
           <DialogContent className="w-full h-full max-w-none max-h-none">
-            <DialogTitle className="sr-only">Galerie d'images</DialogTitle>
+            <DialogTitle className="sr-only">Galerie d&apos;images</DialogTitle>
             <GallerySalonImages salonId={selectedSalonImages} />
           </DialogContent>
         </Dialog>

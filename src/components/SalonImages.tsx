@@ -86,7 +86,7 @@ const GallerySalonImages: React.FC<GallerySalonImagesProps> = ({ salonId }) => {
 
       <Dialog open={!!selectedImage || showAllImages} onOpenChange={() => { setSelectedImage(null); setShowAllImages(false); }}>
         <DialogContent className="w-full h-full max-w-none max-h-none">
-          <DialogTitle className="sr-only">Galerie d'images</DialogTitle>
+          <DialogTitle className="sr-only">Galerie d&apos;images</DialogTitle>
           {selectedImage && !showAllImages && (
             <>
               <div className="relative aspect-[16/9] w-full">

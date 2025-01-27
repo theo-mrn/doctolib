@@ -1,7 +1,12 @@
-import UploadSalonImages from "@/components/addImages";
+"use client";
 
-const UploadPage = ({ params }: { params: { id: string } }) => {
-  const salonId = parseInt(params.id, 10);
+import UploadSalonImages from "@/components/addImages";
+import { useSearchParams } from 'next/navigation';
+
+const UploadPage = () => {
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
+  const salonId = parseInt(id as string, 10);
 
   return (
     <div>

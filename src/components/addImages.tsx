@@ -19,7 +19,7 @@ const UploadSalonImages: React.FC<UploadSalonImagesProps> = ({ salonId }) => {
       setUploading(true);
       const filePath = `${salonId}/${Date.now()}_${file.name}`;
 
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from("image_salons")
         .upload(filePath, file);
 
