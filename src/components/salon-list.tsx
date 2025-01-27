@@ -16,6 +16,9 @@ import Image from "next/image"
 import { format, startOfWeek, addDays, isToday } from "date-fns"
 import { fr } from "date-fns/locale"
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from "@react-google-maps/api"
+import GallerySalonImages from "@/components/SalonImages";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import ImageCarousel from "@/components/ImageCarousel";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyBXn4swG2df3ijBKYswj29sq4mQt_HoZyQ"
 
@@ -60,6 +63,7 @@ export default function SalonList() {
   const [sortOption, setSortOption] = useState<string>("note")
   const [minRating, setMinRating] = useState<number>(0)
   const [availableOnly, setAvailableOnly] = useState<boolean>(false)
+  const [selectedSalonImages, setSelectedSalonImages] = useState<number | null>(null);
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -389,13 +393,8 @@ export default function SalonList() {
                 >
                   <CardContent className="p-0">
                     <div className="flex flex-col sm:flex-row">
-                      <div className="relative h-32 sm:h-auto sm:w-1/4">
-                        <Image
-                          src={salon.image_url || "/placeholder.svg"}
-                          alt={salon.nom_salon}
-                          layout="fill"
-                          objectFit="cover"
-                        />
+                      <div className="relative h-80 sm:h-80 sm:w-1/3">
+                        <ImageCarousel salonId={salon.id} />
                       </div>
                       <div className="flex-1 p-3">
                         <div className="flex justify-between items-start mb-2">
@@ -517,6 +516,15 @@ export default function SalonList() {
           <div className="flex items-center justify-center h-full bg-gray-200">Chargement de la carte...</div>
         )}
       </div>
+
+      {selectedSalonImages && (
+        <Dialog open={!!selectedSalonImages} onOpenChange={() => setSelectedSalonImages(null)}>
+          <DialogContent className="w-full h-full max-w-none max-h-none">
+            <DialogTitle className="sr-only">Galerie d'images</DialogTitle>
+            <GallerySalonImages salonId={selectedSalonImages} />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
 }

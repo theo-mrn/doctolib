@@ -9,6 +9,7 @@ import Link from 'next/link';
 import SalonDetails from './SalonDetails';
 import BeautyServices from './prestations';
 import { Messagerie } from './Messagerie';
+import SalonImages from "@/components/SalonImages";
 
 type Salon = {
   id: string;  
@@ -74,6 +75,10 @@ export default function SalonBooking() {
           Retour à la liste des salons
         </Link>
       </div>
+      <div className="p-4">
+      <SalonImages salonId={Number(id)} />
+
+    </div>
 
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="grid lg:grid-cols-2 gap-8">
