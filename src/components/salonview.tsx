@@ -11,6 +11,8 @@ import BeautyServices from './prestations';
 import { Messagerie } from './Messagerie';
 import SalonImages from "@/components/SalonImages";
 
+import GalleryPrestationImages from "@/components/prestationimages";
+
 type Salon = {
   id: string;  
   nom_salon: string;
@@ -83,16 +85,19 @@ export default function SalonBooking() {
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="grid lg:grid-cols-2 gap-8">
           <div>
-            <SalonInfo salon={salon} />
+            <SalonInfo salon={salon} /><br></br>
             <BeautyServices salon={salon} />
           </div>
-          <SalonDetails 
-            salonId={parseInt(salon.id)} 
-            salonName={salon.nom_salon}
-            initialRating={salon.note || 0} 
-            initialVotes={salon.nombre_votes || 0} 
-            hours={salon.hours as Record<string, string>}
-          />
+          <div>
+            <SalonDetails 
+              salonId={parseInt(salon.id)} 
+              salonName={salon.nom_salon}
+              initialRating={salon.note || 0} 
+              initialVotes={salon.nombre_votes || 0} 
+              hours={salon.hours as Record<string, string>}
+            /><br></br>
+            <GalleryPrestationImages salonId={Number(id)} />
+          </div>
         </div>
       </div>
 

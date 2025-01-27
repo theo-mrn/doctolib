@@ -45,7 +45,7 @@ export default function SalonRecherche() {
   const handleSearch = () => {
     if (selectedCity && selectedCity.codesPostaux.length > 0) {
       const postalCodeParams = selectedCity.codesPostaux.join(',');
-      router.push(`/test?codePostal=${encodeURIComponent(postalCodeParams)}&service=${encodeURIComponent(serviceQuery)}`);
+      router.push(`/dashboard?codePostal=${encodeURIComponent(postalCodeParams)}&service=${encodeURIComponent(serviceQuery)}`);
     } else {
       alert("Veuillez sélectionner une ville avec un code postal valide.");
     }

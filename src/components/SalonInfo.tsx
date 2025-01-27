@@ -1,79 +1,124 @@
-'use client';
+"use client"
 
-import { useEffect, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card'; 
-import { Separator } from '@/components/ui/separator';
-import { Info, Edit3, MapPin } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { supabase } from '@/lib/supabase';
+import { useEffect, useState } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { Info, Edit3, MapPin, Link, Plus } from "lucide-react"
+import { FaFacebook, FaInstagram,  FaYoutube, FaLinkedin } from "react-icons/fa"
+import { BsTwitterX } from "react-icons/bs";
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { supabase } from "@/lib/supabase"
+import type { Salon } from "@/types/salon"
 
 type Props = {
-  salon: {
-    id: string;
-    nom_salon: string;
-    adresse: string;
-    description: string;
-    code_postal: string;
-    ville: string;
-    image_url?: string;
-  };
-};
+  salon: Salon
+}
 
 export default function SalonInfo({ salon }: Props) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedSalon, setEditedSalon] = useState(salon);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isEditing, setIsEditing] = useState(false)
+  const [editedSalon, setEditedSalon] = useState(salon)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [socialLinks, setSocialLinks] = useState<{ platform: string; url: string }[]>([])
 
   useEffect(() => {
-    setEditedSalon(salon);
-  }, [salon]);
+    setEditedSalon(salon)
+  }, [salon])
 
-const handleSaveChanges = async () => {
-  try {
-    let imageUrl = editedSalon.image_url;
+  const handleAddSocialLink = () => {
+    setSocialLinks([...socialLinks, { platform: "", url: "" }])
+  }
 
-    if (imageFile) {
-      const { error: uploadError } = await supabase.storage
-        .from('image_salons')
-        .upload(`public/${salon.id}/${imageFile.name}`, imageFile);
+  const handleRemoveSocialLink = (index: number) => {
+    const newSocialLinks = socialLinks.filter((_, i) => i !== index)
+    setSocialLinks(newSocialLinks)
+  }
 
-      if (uploadError) {
-        console.error('Erreur lors du téléchargement de l\'image :', uploadError.message);
-        return;
+  const handleSocialLinkChange = (index: number, field: keyof typeof socialLinks[0], value: string) => {
+    const newSocialLinks = [...socialLinks]
+    newSocialLinks[index][field] = value
+    setSocialLinks(newSocialLinks)
+  }
+
+  const handleSaveChanges = async () => {
+    try {
+      let imageUrl = editedSalon.image_url
+
+      if (imageFile) {
+        const { error: uploadError } = await supabase.storage
+          .from("image_salons")
+          .upload(`public/${salon.id}/${imageFile.name}`, imageFile)
+
+        if (uploadError) {
+          console.error("Erreur lors du téléchargement de l'image :", uploadError.message)
+          return
+        }
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("image_salons").getPublicUrl(`public/${salon.id}/${imageFile.name}`)
+
+        imageUrl = publicUrl
       }
 
-      const { data: { publicUrl } } = supabase
-        .storage
-        .from('image_salons')
-        .getPublicUrl(`public/${salon.id}/${imageFile.name}`);
-
-      imageUrl = publicUrl;
-    }
-
-    const { error } = await supabase
-      .from('salons')
-      .update({
+      const updatedSalon = {
         nom_salon: editedSalon.nom_salon,
         adresse: editedSalon.adresse,
         description: editedSalon.description,
         code_postal: editedSalon.code_postal,
         ville: editedSalon.ville,
         image_url: imageUrl,
-      })
-      .eq('id', salon.id);
+        social_links: socialLinks,
+      }
 
-    if (error) {
-      console.error('Erreur lors de la mise à jour :', error.message);
-    } else {
-      console.log('Salon mis à jour avec succès.');
-      setIsEditing(false);
+      const { error } = await supabase
+        .from("salons")
+        .update(updatedSalon)
+        .eq("id", salon.id)
+
+      if (error) {
+        console.error("Erreur lors de la mise à jour :", error.message)
+      } else {
+        console.log("Salon mis à jour avec succès.")
+        setIsEditing(false)
+      }
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour :", error)
     }
-  } catch (error) {
-    console.error('Erreur lors de la mise à jour :', error);
   }
-};
+
+  const SocialLink = ({ url, icon: Icon }: { url?: string; icon: React.ElementType }) => {
+    if (!url) return null
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center text-gray-600 hover:text-[#8B4513] transition-colors"
+      >
+        <Icon className="h-5 w-5 mr-2" />
+        <span>{url}</span>
+      </a>
+    )
+  }
+
+  const getIcon = (platform: string) => {
+    switch (platform) {
+      case "Facebook":
+        return FaFacebook
+      case "Instagram":
+        return FaInstagram
+      case "X":
+        return BsTwitterX 
+      case "YouTube":
+        return FaYoutube
+      case "LinkedIn":
+        return FaLinkedin
+      default:
+        return Link
+    }
+  }
 
   return (
     <Card>
@@ -100,6 +145,18 @@ const handleSaveChanges = async () => {
                   <p>
                     {salon.adresse}, {salon.code_postal} {salon.ville}
                   </p>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Réseaux sociaux */}
+              <div>
+                <h2 className="text-xl font-serif text-[#4A332F] mb-3">Réseaux sociaux</h2>
+                <div className="space-y-2">
+                  {socialLinks.map((link, index) => (
+                    <SocialLink key={index} url={link.url} icon={getIcon(link.platform)} />
+                  ))}
                 </div>
               </div>
 
@@ -154,10 +211,42 @@ const handleSaveChanges = async () => {
                 />
               </div>
 
-              <Button
-                onClick={handleSaveChanges}
-                className="w-full bg-green-600 hover:bg-green-800 text-white mt-6"
-              >
+              {/* Modifier les réseaux sociaux */}
+              <div>
+                <h2 className="text-xl font-serif text-[#4A332F] mb-3">Modifier les réseaux sociaux</h2>
+                <div className="space-y-4">
+                  {socialLinks.map((link, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <select
+                        value={link.platform}
+                        onChange={(e) => handleSocialLinkChange(index, "platform", e.target.value)}
+                        className="p-2 border rounded"
+                      >
+                        <option value="">Sélectionner un réseau</option>
+                        <option value="Facebook">Facebook</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="X">X</option>
+                        <option value="YouTube">YouTube</option>
+                        <option value="LinkedIn">LinkedIn</option>
+                      </select>
+                      <Input
+                        value={link.url}
+                        onChange={(e) => handleSocialLinkChange(index, "url", e.target.value)}
+                        placeholder="Lien URL"
+                      />
+                      <Button onClick={() => handleRemoveSocialLink(index)} className="bg-red-600 hover:bg-red-800 text-white">
+                        -
+                      </Button>
+                    </div>
+                  ))}
+                  <Button onClick={handleAddSocialLink} className="flex items-center space-x-2">
+                    <Plus className="w-5 h-5" />
+                    <span>Ajouter un réseau</span>
+                  </Button>
+                </div>
+              </div>
+
+              <Button onClick={handleSaveChanges} className="w-full bg-green-600 hover:bg-green-800 text-white mt-6">
                 Sauvegarder les modifications
               </Button>
             </>
@@ -165,5 +254,6 @@ const handleSaveChanges = async () => {
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }
+

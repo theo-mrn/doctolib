@@ -1,5 +1,8 @@
-import SalonList2 from '@/components/salon-list2'
+'use client';
 
-export default function HomePage() {
-  return <SalonList2 />
+import SalonList from '../../components/salon-list';
+
+export default function Page() {
+  return <SalonList />;
 }
+

@@ -67,7 +67,7 @@ export default function AppointmentsPage() {
           <p className="mb-4">Vous n&apos;avez pas de rendez-vous pour le moment.</p>
           <button 
              className="w-full bg-[#8B4513] hover:bg-[#6F3710] text-white flex items-center justify-center gap-2 rounded-lg p-3"
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push('/recherche')}
           >
             Prendre RDV
           </button>
