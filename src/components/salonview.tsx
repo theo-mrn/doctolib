@@ -5,7 +5,6 @@ import { useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import SalonInfo from './SalonInfo'; 
 import { ArrowLeft, MessageCircle, X } from 'lucide-react';
-import Link from 'next/link';
 import SalonDetails from './SalonDetails';
 import BeautyServices from './prestations';
 import { Messagerie } from './Messagerie';
@@ -72,10 +71,13 @@ export default function SalonBooking() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-100 to-teal-100 relative">
       <div className="container mx-auto px-4 py-4">
-        <Link href="/" className="inline-flex items-center text-[#8b4513] font-bold bg-white p-3 rounded-lg hover:text-[#8B4513]">
+        <button 
+          onClick={() => window.history.back()} 
+          className="inline-flex items-center text-[#8b4513] font-bold bg-white p-3 rounded-lg hover:text-[#8B4513]"
+        >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Retour à la liste des salons
-        </Link>
+        </button>
       </div>
       <div className="p-4">
       <SalonImages salonId={Number(id)} />

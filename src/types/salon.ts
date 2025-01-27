@@ -9,6 +9,6 @@ export type Salon = {
     facebook?: string
     instagram?: string
     twitter?: string
-  }
-  
-  
+    social_links?: { platform: string; url: string }[]
+}
+

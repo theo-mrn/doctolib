@@ -24,6 +24,8 @@ export default function SalonInfo({ salon }: Props) {
 
   useEffect(() => {
     setEditedSalon(salon)
+    setSocialLinks(salon.social_links || [])
+    console.log("Réseaux sociaux chargés :", salon.social_links)
   }, [salon])
 
   const handleAddSocialLink = () => {
