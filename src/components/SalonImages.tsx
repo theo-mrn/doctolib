@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { ArrowLeft, ArrowRight} from 'lucide-react';
+
 
 type GallerySalonImagesProps = {
   salonId: number;
@@ -100,13 +102,13 @@ const GallerySalonImages: React.FC<GallerySalonImagesProps> = ({ salonId }) => {
                   className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-opacity-50 p-2 rounded-full"
                   onClick={handlePrevImage}
                 >
-                  &lt;
+                  <ArrowLeft/>
                 </button>
                 <button
                   className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-opacity-50 p-2 rounded-full"
                   onClick={handleNextImage}
                 >
-                  &gt;
+                   <ArrowRight/>
                 </button>
               </div>
             </>

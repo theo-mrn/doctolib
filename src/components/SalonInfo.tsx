@@ -24,7 +24,7 @@ export default function SalonInfo({ salon }: Props) {
 
   useEffect(() => {
     setEditedSalon(salon)
-    setSocialLinks(salon.social_links || [])
+    setSocialLinks(Array.isArray(salon.social_links) ? salon.social_links : [])
     console.log("Réseaux sociaux chargés :", salon.social_links)
   }, [salon])
 
@@ -128,9 +128,13 @@ export default function SalonInfo({ salon }: Props) {
         <div className="space-y-4">
           {!isEditing ? (
             <>
+              {/* Nom du salon */}
+              <div>
+                <h1 className="text-3xl font-bold text-[#4A332F] mb-3">{salon.nom_salon}</h1>
+              </div>
               {/* Informations générales */}
               <div>
-                <h2 className="text-xl font-serif text-[#4A332F] mb-3">À propos</h2>
+                <h4 className="text-xl font-serif text-[#4A332F] mb-3">À propos</h4>
                 <div className="flex items-start text-gray-600">
                   <Info className="h-5 w-5 mr-2 mt-1 flex-shrink-0" />
                   <p>{salon.description}</p>
@@ -151,14 +155,16 @@ export default function SalonInfo({ salon }: Props) {
               </div>
 
               <Separator />
-
-              {/* Réseaux sociaux */}
               <div>
                 <h2 className="text-xl font-serif text-[#4A332F] mb-3">Réseaux sociaux</h2>
                 <div className="space-y-2">
-                  {socialLinks.map((link, index) => (
-                    <SocialLink key={index} url={link.url} icon={getIcon(link.platform)} />
-                  ))}
+                  {socialLinks?.length > 0 ? (
+                    socialLinks.map((link, index) => (
+                      <SocialLink key={index} url={link.url} icon={getIcon(link.platform)} />
+                    ))
+                  ) : (
+                    <p className="text-gray-500">Aucun réseau social ajouté</p>
+                  )}
                 </div>
               </div>
 

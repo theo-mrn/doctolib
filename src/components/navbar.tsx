@@ -80,7 +80,7 @@ export function Navbar() {
                           <NavigationMenuLink asChild>
                             <a
                               className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-black to-[#8B4513] p-6 no-underline outline-none focus:shadow-md hover:z-50"
-                              href="/inscription-salon"
+                              href="/register-salon"
                             >
                               <div className="mt-4 mb-2 text-lg font-medium text-white">
                                 Inscrivez votre salon
