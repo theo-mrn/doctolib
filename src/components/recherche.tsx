@@ -33,6 +33,8 @@ export default function SalonRecherche() {
       // Capitaliser la première lettre
       const formattedType = typeParam.charAt(0).toUpperCase() + typeParam.slice(1)
       setServiceQuery(formattedType)
+      // Vider les suggestions si on arrive avec un paramètre type
+      setServiceSuggestions([])
     }
   }, [searchParams])
 
@@ -67,11 +69,11 @@ export default function SalonRecherche() {
         <Input
           type="text"
           placeholder="Que cherchez-vous ?"
-          className="w-full"
+          className="w-full h-10"
           value={serviceQuery}
           onChange={(e) => setServiceQuery(e.target.value)}
         />
-        {serviceQuery.length > 0 && serviceSuggestions.length > 0 && (
+        {serviceQuery.length > 0 && serviceSuggestions.length > 0 && !searchParams.get('type') && (
           <ul className="absolute bg-white border border-gray-200 rounded-lg shadow-lg mt-2 w-full">
             {serviceSuggestions
               .filter((service) =>
@@ -96,7 +98,7 @@ export default function SalonRecherche() {
         <Input
           type="text"
           placeholder="Où ? Adresse, ville..."
-          className="w-full"
+          className="w-full h-10 "
           value={query}
           onChange={(e) => {
             setQuery(e.target.value)

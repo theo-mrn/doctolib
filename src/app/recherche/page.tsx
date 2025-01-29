@@ -20,15 +20,15 @@ export default function LandingPage() {
             />
           </div>
           
-          <div className="relative z-20 h-full flex items-center justify-center">
+          <div className="relative z-20 h-full flex items-center justify-center" style={{ paddingBottom: '15vh' }}>
             <div className="container mx-auto px-4">
-              <div className="flex flex-col items-center space-y-12 max-w-4xl mx-auto">
-                <div className="text-center space-y-6">
+              <div className="flex flex-col items-center space-y-8 max-w-4xl mx-auto">
+                <div className="text-center space-y-4">
                   <h2 className="text-5xl md:text-6xl lg:text-5xl font-bold text-white">
                     Rechercher un salon 
                   </h2>
                 </div>
-                <div className="w-full max-w-3xl">
+                <div className="w-full max-w-7xl">
                   <Suspense fallback={<div className="text-white">Chargement...</div>}>
                     <SalonRecherche />
                   </Suspense>
