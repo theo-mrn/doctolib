@@ -409,6 +409,17 @@ export default function SalonList() {
                             {salon.adresse}, {salon.code_postal}
                           </span>
                         </div>
+                        {/* Ajout des badges de catégories */}
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {salon.types?.map((type, index) => (
+                            <span
+                              key={index}
+                              className="px-2 py-1 text-xs font-medium rounded-full bg-[#4A332F]/10 text-[#4A332F]"
+                            >
+                              {type}
+                            </span>
+                          ))}
+                        </div>
                         <div className="mb-2">
                           <h4 className="text-xs font-semibold text-gray-700 mb-1">
                             {expandedSalons[salon.id]

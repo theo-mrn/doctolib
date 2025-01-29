@@ -1,8 +1,17 @@
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { Plus, X } from "lucide-react"
 import { SalonFormData, SocialLink } from "../SalonRegistrationForm"
+
+const PREDEFINED_SERVICES = [
+  "Coiffeur", "Barbier", "Manucure", 
+  "Pédicure", "Coloration",
+  "Extensions", "Massage crânien", 
+  "Epilation", "Maquillage", "Soins du visage", "Soins du corps", "Spa", 
+  "Tatouage", "Piercing", "Soins des pieds", "Soins des mains", "Onglerie", 
+  "Beauté des pieds", "Relooking"
+]
 
 interface ServiceTypesProps {
   step: 'service-types';
@@ -53,15 +62,38 @@ export default function ServiceTypes({ formData, setFormData }: Omit<ServiceType
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Types de services</h3>
         <div className="flex space-x-2">
-          <Input placeholder="Type de service" value={newType} onChange={(e) => setNewType(e.target.value)} />
+          <select
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2"
+            value={newType}
+            onChange={(e) => setNewType(e.target.value)}
+          >
+            <option value="">Sélectionner un service</option>
+            {PREDEFINED_SERVICES.filter(service => !types.includes(service)).map((service) => (
+              <option key={service} value={service}>
+                {service}
+              </option>
+            ))}
+          </select>
           <Button type="button" onClick={handleAddType}>
             Ajouter
           </Button>
         </div>
         <div className="flex flex-wrap gap-2">
           {types.map((type, index) => (
-            <div key={index} className="bg-primary text-primary-foreground px-2 py-1 rounded">
-              {type}
+            <div key={index} className="flex items-center bg-primary text-primary-foreground px-2 py-1 rounded">
+              <span>{type}</span>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => {
+                  const updatedTypes = types.filter((_, i) => i !== index);
+                  setTypes(updatedTypes);
+                  setFormData({ ...formData, types: updatedTypes });
+                }} 
+                className="ml-2 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
           ))}
         </div>

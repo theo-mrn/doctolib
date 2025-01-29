@@ -6,6 +6,15 @@ import { Button } from "@/components/ui/button"
 import { Plus, X } from "lucide-react"
 import type { Salon, SocialLink } from "@/types/salon"
 
+const PREDEFINED_SERVICES = [
+  "Coiffeur", "Barbier", "Manucure", 
+  "Pédicure", "Coloration",
+  "Extensions", "Massage crânien", 
+  "Epilation", "Maquillage", "Soins du visage", "Soins du corps", "Spa", 
+  "Tatouage", "Piercing", "Soins des pieds", "Soins des mains", "Onglerie", 
+  "Beauté des pieds", "Relooking"
+]
+
 type ServiceTypesValue = string[] | Record<string, SocialLink>
 
 interface ServiceTypesProps {
@@ -38,10 +47,6 @@ export default function ServiceTypes({ formData, updateFormData }: ServiceTypesP
     setTypes((prev) => prev.filter((type) => type !== typeToRemove))
   }
 
-  const handleEditType = (index: number, newValue: string) => {
-    setTypes((prev) => prev.map((type, i) => (i === index ? newValue : type)))
-  }
-
   const handleAddLink = () => {
     const newLink: SocialLink = { platform: "", url: "" }
     const key = Date.now().toString()
@@ -68,7 +73,18 @@ export default function ServiceTypes({ formData, updateFormData }: ServiceTypesP
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Types de services</h3>
         <div className="flex space-x-2">
-          <Input placeholder="Nouveau type de service" value={newType} onChange={(e) => setNewType(e.target.value)} />
+          <select
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2"
+            value={newType}
+            onChange={(e) => setNewType(e.target.value)}
+          >
+            <option value="">Sélectionner un service</option>
+            {PREDEFINED_SERVICES.filter(service => !types.includes(service)).map((service) => (
+              <option key={service} value={service}>
+                {service}
+              </option>
+            ))}
+          </select>
           <Button type="button" onClick={handleAddType}>
             Ajouter
           </Button>
@@ -76,11 +92,7 @@ export default function ServiceTypes({ formData, updateFormData }: ServiceTypesP
         <div className="flex flex-wrap gap-2">
           {types.map((type, index) => (
             <div key={index} className="flex items-center bg-primary text-primary-foreground px-2 py-1 rounded">
-              <Input
-                value={type}
-                onChange={(e) => handleEditType(index, e.target.value)}
-                className="bg-transparent border-none text-primary-foreground w-auto min-w-0"
-              />
+              <span className="px-2">{type}</span>
               <Button variant="ghost" size="sm" onClick={() => handleRemoveType(type)} className="ml-2 p-0">
                 <X className="h-4 w-4" />
               </Button>

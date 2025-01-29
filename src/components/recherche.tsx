@@ -1,9 +1,9 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 type CitySuggestion = {
   nom: string;
@@ -11,20 +11,30 @@ type CitySuggestion = {
 };
 
 export default function SalonRecherche() {
+  const searchParams = useSearchParams()
   const [query, setQuery] = useState("")
   const [suggestions, setSuggestions] = useState<CitySuggestion[]>([])
   const [serviceQuery, setServiceQuery] = useState("")
   const [serviceSuggestions, setServiceSuggestions] = useState([
-    "Coiffeur", "Coiffeur homme", "Coiffeur femme", "Barbier", "Manucure", 
-    "Pédicure", "Coloration", "Mèches", "Balayage", "Lissage", "Permanente", 
-    "Extensions", "Chignon", "Brushing", "Soin capillaire", "Massage crânien", 
+    "Coiffeur","Barbier", "Manucure", 
+    "Pédicure", "Coloration",
+    "Extensions","Massage crânien", 
     "Epilation", "Maquillage", "Soins du visage", "Soins du corps", "Spa", 
     "Tatouage", "Piercing", "Soins des pieds", "Soins des mains", "Onglerie", 
-    "Beauté des pieds", "Beauté des mains", "Relooking", "Conseil en image"
+    "Beauté des pieds","Relooking"
   ])
   const [selectedCity, setSelectedCity] = useState<{ nom: string; codesPostaux: string[] } | null>(null)
 
   const router = useRouter();
+
+  useEffect(() => {
+    const typeParam = searchParams.get('type')
+    if (typeParam) {
+      // Capitaliser la première lettre
+      const formattedType = typeParam.charAt(0).toUpperCase() + typeParam.slice(1)
+      setServiceQuery(formattedType)
+    }
+  }, [searchParams])
 
   const fetchSuggestions = async (input: string) => {
     if (input.length < 2) return // Limiter les appels pour les entrées courtes
@@ -38,8 +48,8 @@ export default function SalonRecherche() {
 
   const handleCitySelect = (city: { nom: string; codesPostaux: string[] }) => {
     setQuery(city.nom)
-    setSuggestions([]) // Effacer les suggestions
-    setSelectedCity(city) // Stocker la ville sélectionnée
+    setSuggestions([]) 
+    setSelectedCity(city)
   }
 
   const handleSearch = () => {
@@ -52,32 +62,7 @@ export default function SalonRecherche() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 p-4 bg-white rounded-lg shadow-lg">
-      <div className="flex-1 relative">
-        <Input
-          type="text"
-          placeholder="Où ? Adresse, ville..."
-          className="w-full"
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value)
-            fetchSuggestions(e.target.value)
-          }}
-        />
-        {suggestions.length > 0 && (
-          <ul className="absolute bg-white border border-gray-200 rounded-lg shadow-lg mt-2 w-full">
-            {suggestions.map((city, index) => (
-              <li
-                key={`${city.nom}-${index}`}
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleCitySelect(city)}
-              >
-                {city.nom}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+    <div className="flex flex-col md:flex-row gap-4 p-4 bg-gray-50 rounded-lg shadow-lg">
       <div className="flex-1 relative">
         <Input
           type="text"
@@ -104,6 +89,31 @@ export default function SalonRecherche() {
                   {service}
                 </li>
               ))}
+          </ul>
+        )}
+      </div>
+      <div className="flex-1 relative">
+        <Input
+          type="text"
+          placeholder="Où ? Adresse, ville..."
+          className="w-full"
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value)
+            fetchSuggestions(e.target.value)
+          }}
+        />
+        {suggestions.length > 0 && (
+          <ul className="absolute bg-white border border-gray-200 rounded-lg shadow-lg mt-2 w-full">
+            {suggestions.map((city, index) => (
+              <li
+                key={`${city.nom}-${index}`}
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleCitySelect(city)}
+              >
+                {city.nom}
+              </li>
+            ))}
           </ul>
         )}
       </div>
