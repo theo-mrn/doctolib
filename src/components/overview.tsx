@@ -15,6 +15,7 @@ interface DateRange {
 
 interface OverviewProps {
   dateRange: DateRange | undefined
+  salonId: number
 }
 
 interface Reservation {
@@ -22,7 +23,7 @@ interface Reservation {
   price: number;
 }
 
-export function Overview({ dateRange }: OverviewProps) {
+export function Overview({ dateRange, salonId }: OverviewProps) {
   const [data, setData] = useState<{ name: string; total: number }[]>([])
 
   useEffect(() => {
@@ -32,6 +33,7 @@ export function Overview({ dateRange }: OverviewProps) {
       const { data: reservations, error } = await supabase
         .from('reservations')
         .select('*')
+        .eq('salon_id', salonId)
         .gte('date', dateRange.from.toISOString())
         .lte('date', dateRange.to.toISOString())
 
@@ -47,7 +49,7 @@ export function Overview({ dateRange }: OverviewProps) {
       }
     }
     fetchData()
-  }, [dateRange])
+  }, [dateRange, salonId])
 
   if (!dateRange?.from || !dateRange?.to) {
     return <p>Veuillez sélectionner une période pour voir l&apos;aperçu des revenus.</p>

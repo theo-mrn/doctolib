@@ -46,7 +46,7 @@ export default function ConnexionPage() {
             console.log("Session trouvée :", sessionData.session);
             console.log("Access Token (JWT) :", sessionData.session.access_token);
             setMessage("Connexion réussie !");
-            router.push("/dashboard");
+            router.push("/recherche");
           }
         } else {
           const { data: sessionData } = await supabase.auth.getSession();
@@ -54,7 +54,7 @@ export default function ConnexionPage() {
             console.log("Session existante trouvée :", sessionData.session);
             console.log("Access Token (JWT) :", sessionData.session.access_token);
             setMessage("Connexion réussie !");
-            router.push("/dashboard");
+            router.push("/recherche");
           }
         }
       } catch (error) {
@@ -78,8 +78,12 @@ export default function ConnexionPage() {
     if (error) {
       setMessage(`Erreur lors de la connexion : ${error.message}`);
     } else {
+      // Sauvegarder le jeton dans les cookies
+      if (data.session) {
+        document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=${60 * 60 * 24 * 7}`;
+        document.cookie = `sb-refresh-token=${data.session.refresh_token}; path=/; max-age=${60 * 60 * 24 * 7}`;
+      }
       console.log("Connexion réussie, session :", data.session);
-      console.log("Access Token (JWT) :", data.session?.access_token);
       setMessage("Connexion réussie !");
       router.push("/dashboard");
     }

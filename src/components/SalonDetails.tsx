@@ -4,7 +4,7 @@ import SalonBookingForm from './SalonBookingForm';
 // Suppression de l'import Messagerie
 
 type SalonDetailsProps = {
-  salonId: number;
+  salonId: number;  // Keep as number
   salonName: string;
   initialRating: number;
   initialVotes: number;

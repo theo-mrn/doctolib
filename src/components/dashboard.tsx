@@ -6,7 +6,11 @@ import { AppointmentCalendar } from "./appointment-calendar"
 import { MessageList } from "./message-list"
 import { RevenueOverview } from "./revenue-overview"
 
-export default function Dashboard() {
+interface DashboardProps {
+  salonId: number;
+}
+
+export default function Dashboard({ salonId }: DashboardProps) {
   const [activeTab, setActiveTab] = useState("revenue")
 
   return (
@@ -65,12 +69,12 @@ export default function Dashboard() {
           )}
           {activeTab === "appointments" && (
             <div className="h-full">
-              <AppointmentCalendar />
+              <AppointmentCalendar salonId={salonId} />
             </div>
           )}
           {activeTab === "messages" && (
             <div className="h-full">
-              <MessageList />
+              <MessageList salonId={salonId} />
             </div>
           )}
         </div>

@@ -9,36 +9,16 @@ import SalonDetails from './SalonDetails';
 import BeautyServices from './prestations';
 import { Messagerie } from './Messagerie';
 import SalonImages from "@/components/SalonImages";
-
 import GalleryPrestationImages from "@/components/prestationimages";
-
-type Salon = {
-  id: string;  
-  nom_salon: string;
-  adresse: string;
-  description: string;
-  code_postal: string;
-  ville: string;  
-  lat?: number;
-  lng?: number;
-  image_url?: string;
-  hours?: Record<string, string>;
-  services?: string[];
-  note: number;
-  nombre_votes: number;
-};
+import type { Salon } from '@/types/salon';
 
 const defaultSalon: Partial<Salon> = {
-  hours: {
-    lundi: '9:00 - 19:00',
-    mardi: '9:00 - 19:00',
-    mercredi: '9:00 - 19:00',
-    jeudi: '9:00 - 19:00',
-    vendredi: '9:00 - 20:00',
-    samedi: '9:00 - 18:00',
-    dimanche: 'Fermé',
-  },
-  services: [],
+  note: 0,
+  nombre_votes: 0,
+  types: [],
+  social_links: null,
+  pricing: {},  // Initialiser avec un objet vide plutôt qu'un tableau vide
+  ouverture: null
 };
 
 export default function SalonBooking() {
@@ -57,7 +37,24 @@ export default function SalonBooking() {
       if (error) {
         console.error('Erreur lors de la récupération du salon :', error.message);
       } else {
-        setSalon({ ...data, ...defaultSalon });
+        const daysOrder = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+        const hours = Object.fromEntries(
+          daysOrder.map(day => {
+            const dayData = data.ouverture?.[day.charAt(0).toUpperCase() + day.slice(1)] || { isOpen: false };
+            if (!dayData.isOpen) {
+              return [day, 'Fermé'];
+            }
+            const morning = dayData.morning ? `${dayData.morning.start} - ${dayData.morning.end}` : '';
+            const afternoon = dayData.afternoon ? `${dayData.afternoon.start} - ${dayData.afternoon.end}` : '';
+            return [day, [morning, afternoon].filter(Boolean).join(' / ')];
+          })
+        );
+        setSalon({ 
+          ...defaultSalon,
+          ...data, 
+          id: Number(data.id), 
+          hours 
+        });
       }
     };
 
@@ -80,25 +77,27 @@ export default function SalonBooking() {
         </button>
       </div>
       <div className="p-4">
-      <SalonImages salonId={Number(id)} />
-
-    </div>
+        <SalonImages salonId={Number(id)} refresh={false} />
+      </div>
 
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="grid lg:grid-cols-2 gap-8">
           <div>
             <SalonInfo salon={salon} /><br></br>
-            <BeautyServices salon={salon} />
+            <BeautyServices salon={{
+              ...salon,
+              id: salon.id.toString(),
+            }} />
           </div>
           <div>
             <SalonDetails 
-              salonId={parseInt(salon.id)} 
+              salonId={salon.id} 
               salonName={salon.nom_salon}
               initialRating={salon.note || 0} 
               initialVotes={salon.nombre_votes || 0} 
               hours={salon.hours as Record<string, string>}
             /><br></br>
-            <GalleryPrestationImages salonId={Number(id)} />
+            <GalleryPrestationImages salonId={Number(id)} refresh={false} />
           </div>
         </div>
       </div>

@@ -12,6 +12,10 @@ interface PricingProps {
   setFormData: React.Dispatch<React.SetStateAction<SalonFormData>>
 }
 
+const convertCategoriesToJson = (categories: Category[]): Category[] => {
+  return categories;
+}
+
 export default function Pricing({ formData, setFormData }: Omit<PricingProps, 'step'>) {
   const [categories, setCategories] = useState<Category[]>(formData.pricing || [])
 
@@ -23,7 +27,7 @@ export default function Pricing({ formData, setFormData }: Omit<PricingProps, 's
     }
     const updatedCategories = [...categories, newCategory]
     setCategories(updatedCategories)
-    setFormData({ ...formData, pricing: updatedCategories })
+    setFormData({ ...formData, pricing: convertCategoriesToJson(updatedCategories) })
   }
 
   const addService = (categoryId: string) => {
@@ -31,13 +35,13 @@ export default function Pricing({ formData, setFormData }: Omit<PricingProps, 's
       id: Date.now().toString(),
       title: "Nouveau service",
       duration: "1h",
-      price: "0 €",
+      price: "0",
     }
     const updatedCategories = categories.map((category) =>
       category.id === categoryId ? { ...category, services: [...category.services, newService] } : category,
     )
     setCategories(updatedCategories)
-    setFormData({ ...formData, pricing: updatedCategories })
+    setFormData({ ...formData, pricing: convertCategoriesToJson(updatedCategories) })
   }
 
   const updateCategory = (categoryId: string, field: string, value: string) => {
@@ -45,7 +49,7 @@ export default function Pricing({ formData, setFormData }: Omit<PricingProps, 's
       category.id === categoryId ? { ...category, [field]: value } : category,
     )
     setCategories(updatedCategories)
-    setFormData({ ...formData, pricing: updatedCategories })
+    setFormData({ ...formData, pricing: convertCategoriesToJson(updatedCategories) })
   }
 
   const updateService = (categoryId: string, serviceId: string, field: string, value: string) => {
@@ -60,13 +64,13 @@ export default function Pricing({ formData, setFormData }: Omit<PricingProps, 's
         : category,
     )
     setCategories(updatedCategories)
-    setFormData({ ...formData, pricing: updatedCategories })
+    setFormData({ ...formData, pricing: convertCategoriesToJson(updatedCategories) })
   }
 
   const deleteCategory = (categoryId: string) => {
     const updatedCategories = categories.filter((category) => category.id !== categoryId)
     setCategories(updatedCategories)
-    setFormData({ ...formData, pricing: updatedCategories })
+    setFormData({ ...formData, pricing: convertCategoriesToJson(updatedCategories) })
   }
 
   const deleteService = (categoryId: string, serviceId: string) => {
@@ -76,7 +80,7 @@ export default function Pricing({ formData, setFormData }: Omit<PricingProps, 's
         : category,
     )
     setCategories(updatedCategories)
-    setFormData({ ...formData, pricing: updatedCategories })
+    setFormData({ ...formData, pricing: convertCategoriesToJson(updatedCategories) })
   }
 
   return (

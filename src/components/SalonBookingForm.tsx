@@ -130,6 +130,12 @@ export default function SalonBookingForm({ salon }: Props) {
 
     if (date && selectedTime && selectedService && prenom && nom && phone) {
         const formattedDate = date.toISOString().split('T')[0];
+        const today = new Date().toISOString().split('T')[0];
+
+        if (formattedDate < today) {
+            alert('⚠️ Vous ne pouvez pas réserver un rendez-vous pour une date passée.');
+            return;
+        }
 
         if (reservedSlots.includes(selectedTime)) {
             alert('⚠️ Ce créneau est déjà réservé. Veuillez en choisir un autre.');
@@ -225,6 +231,7 @@ export default function SalonBookingForm({ salon }: Props) {
                 fetchReservedSlots(newDate);
               }
             }}
+            disabled={(date) => date.getTime() < new Date().setHours(0, 0, 0, 0)}
             className="rounded-md border mx-auto"
           />
         </div>

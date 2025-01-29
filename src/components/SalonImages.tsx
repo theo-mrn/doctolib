@@ -10,6 +10,7 @@ import { ArrowLeft, ArrowRight} from 'lucide-react';
 
 type GallerySalonImagesProps = {
   salonId: number;
+  refresh: boolean;
 };
 
 type GalleryImage = {
@@ -17,7 +18,7 @@ type GalleryImage = {
   image_url: string;
 };
 
-const GallerySalonImages: React.FC<GallerySalonImagesProps> = ({ salonId }) => {
+const GallerySalonImages: React.FC<GallerySalonImagesProps> = ({ salonId, refresh }) => {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number | null>(null);
@@ -38,7 +39,7 @@ const GallerySalonImages: React.FC<GallerySalonImagesProps> = ({ salonId }) => {
     };
 
     fetchImages();
-  }, [salonId]);
+  }, [salonId, refresh]);
 
   const handleNextImage = () => {
     if (currentIndex !== null) {

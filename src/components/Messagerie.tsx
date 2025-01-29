@@ -19,8 +19,9 @@ interface Message {
   content: string
   sender_id: string
   sender_name: string
-  recipient_id: string
+  salon_id: number
   timestamp: string
+  receiver_id?: string
 }
 
 interface MessagerieProps {
@@ -70,18 +71,18 @@ export function Messagerie({ otherPersonName, otherPersonAvatar, salonId }: Mess
 
   useEffect(() => {
     const fetchMessages = async () => {
-      if (!userId || !recipientId) return;
+      if (!userId || !salonId) return;
       const { data, error } = await supabase
         .from('messages')
         .select('*')
-        .or(`sender_id.eq.${userId},recipient_id.eq.${userId}`)
+        .eq('salon_id', salonId)
         .order('timestamp', { ascending: true })
 
       if (!error) setMessages(data || [])
     }
 
     fetchMessages()
-  }, [salonId, userId, recipientId])
+  }, [salonId, userId])
 
   // ✅ Envoyer un message
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -94,13 +95,14 @@ export function Messagerie({ otherPersonName, otherPersonAvatar, salonId }: Mess
         {
           sender_id: userId,
           sender_name: userName,
-          recipient_id: recipientId,
-          content: newMessage
+          salon_id: salonId,
+          content: newMessage,
+          receiver_id: recipientId // Ajout de receiver_id
         }
       ])
 
     if (!error) {
-      setMessages([...messages, { id: Date.now(), content: newMessage, sender_id: userId, sender_name: userName, recipient_id: recipientId, timestamp: new Date().toISOString() }])
+      setMessages([...messages, { id: Date.now(), content: newMessage, sender_id: userId, sender_name: userName, salon_id: salonId, timestamp: new Date().toISOString(), receiver_id: recipientId }])
       setNewMessage("")
     }
   }

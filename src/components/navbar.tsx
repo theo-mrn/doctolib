@@ -104,6 +104,19 @@ export function Navbar() {
                             </a>
                           </NavigationMenuLink>
                         </li>
+                        <li>
+                          <NavigationMenuLink asChild>
+                            <a
+                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-gray-100 focus:bg-gray-100"
+                              href="/modifier-salon"
+                            >
+                              <div className="text-sm font-medium leading-none">Modifier mon salon</div>
+                              <p className="line-clamp-2 text-sm leading-snug text-gray-500">
+                                Modifiez les informations de votre salon.
+                              </p>
+                            </a>
+                          </NavigationMenuLink>
+                        </li>
                       </ul>
                     </NavigationMenuContent>
                   </NavigationMenuItem>

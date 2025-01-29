@@ -5,9 +5,9 @@ import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
-type ImageCarouselProps = {
-  salonId: number;
-};
+interface ImageCarouselProps {
+  salonId: string | number;  // Accepter les deux types
+}
 
 type CarouselImage = {
   id: number;
@@ -15,6 +15,9 @@ type CarouselImage = {
 };
 
 const ImageCarousel: React.FC<ImageCarouselProps> = ({ salonId }) => {
+  // Convertir en nombre si nécessaire
+  const numericSalonId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
+
   const [images, setImages] = useState<CarouselImage[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -23,7 +26,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ salonId }) => {
       const { data, error } = await supabase
         .from("salon_images")
         .select("id, image_url")
-        .eq("salon_id", salonId);
+        .eq("salon_id", numericSalonId);
 
       if (error) {
         console.error("Erreur lors de la récupération des images :", error);
@@ -33,7 +36,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ salonId }) => {
     };
 
     fetchImages();
-  }, [salonId]);
+  }, [numericSalonId]);
 
   const handleNextImage = () => {
     setCurrentIndex((currentIndex + 1) % images.length);

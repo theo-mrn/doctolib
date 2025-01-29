@@ -11,6 +11,7 @@ import Pricing from "./steps/Pricing"
 import ServiceTypes from "./steps/ServiceTypes"
 // Supprimer l'import de SocialLinks
 import { supabase } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
 
 export interface OpeningHour {
   isOpen: boolean
@@ -124,6 +125,7 @@ const steps: Array<{ title: string; component: StepComponent; step: StepProps['s
 ]
 
 export default function SalonRegistrationForm() {
+  const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState<SalonFormData>({
     nom_salon: "",
@@ -152,19 +154,28 @@ export default function SalonRegistrationForm() {
   const isStepValid = () => {
     switch (currentStep) {
       case 0: // BasicInfo
-        return formData.nom_salon
+        return formData.nom_salon.trim() !== ""
       case 1: // Address
-        return formData.adresse && formData.code_postal && formData.ville
+        return formData.adresse.trim() !== "" && formData.code_postal.trim() !== "" && formData.ville.trim() !== ""
       case 2: // DescriptionImage
-        return formData.description
+        return formData.description.trim() !== ""
       case 3: // OpeningHours
         return formData.ouverture && Object.keys(formData.ouverture).length > 0
       case 4: // Pricing
-        return formData.pricing && formData.pricing.length > 0
+        const pricingData = formData.pricing || [];
+        return pricingData.length > 0 && pricingData.every(category => 
+          category.title.trim() !== "" && 
+          category.services.length > 0 && 
+          category.services.every(service => 
+            service.title.trim() !== "" && 
+            service.duration.trim() !== "" && 
+            service.price.trim() !== ""
+          )
+        );
       case 5: // ServiceTypes et SocialLinks
         return formData.types && formData.types.length > 0
       default:
-        return false
+        return true
     }
   }
 
@@ -183,12 +194,12 @@ export default function SalonRegistrationForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (currentStep === steps.length - 1 && isStepValid()) {
-      const pricingObject = (formData.pricing || []).reduce<PricingObject>((acc, category) => {
+      const pricingObject = formData.pricing.reduce<PricingObject>((acc, category) => {
         acc[category.title] = category.services.reduce<{ [key: string]: ServiceDetails }>((serviceAcc, service) => {
           serviceAcc[service.title] = {
-            description: service.description || "",  // Ajouter une valeur par défaut
+            description: service.description || "",
             duration: service.duration,
-            price: Number.parseFloat(service.price.replace(" €", "")),
+            price: parseFloat(service.price),
           }
           return serviceAcc
         }, {})
@@ -208,12 +219,17 @@ export default function SalonRegistrationForm() {
         social_links: formData.social_links,
       }
 
-      const { error } = await supabase.from('salons').insert([dataToSubmit])
+      const { data, error } = await supabase
+        .from('salons')
+        .insert([dataToSubmit])
+        .select('id')
+        .single()
 
       if (error) {
         console.error("Error submitting form:", error)
       } else {
         console.log("Form submitted successfully")
+        router.push(`/dashboard/${data.id}`)
       }
     }
   }

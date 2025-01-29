@@ -14,8 +14,10 @@ interface OpeningHoursProps {
 interface JourOuverture {
   jour: string;
   ouvert: boolean;
-  debut: string;
-  fin: string;
+  matinDebut: string;
+  matinFin: string;
+  apremDebut: string;
+  apremFin: string;
 }
 
 const jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
@@ -26,15 +28,19 @@ export default function OpeningHours({ formData, setFormData }: Omit<OpeningHour
       return jours.map(jour => ({
         jour,
         ouvert: formData.ouverture[jour]?.isOpen || false,
-        debut: formData.ouverture[jour]?.morning?.start || "09:00",
-        fin: formData.ouverture[jour]?.morning?.end || "18:00"
+        matinDebut: formData.ouverture[jour]?.morning?.start || "09:00",
+        matinFin: formData.ouverture[jour]?.morning?.end || "12:00",
+        apremDebut: formData.ouverture[jour]?.afternoon?.start || "14:00",
+        apremFin: formData.ouverture[jour]?.afternoon?.end || "18:00",
       }))
     }
-    return jours.map(jour => ({ 
-      jour, 
-      ouvert: false, 
-      debut: "09:00", 
-      fin: "18:00" 
+    return jours.map(jour => ({
+      jour,
+      ouvert: false,
+      matinDebut: "09:00",
+      matinFin: "12:00",
+      apremDebut: "14:00",
+      apremFin: "18:00",
     }))
   })
 
@@ -42,13 +48,16 @@ export default function OpeningHours({ formData, setFormData }: Omit<OpeningHour
     const updatedHours = openingHours.map((jour, i) => (i === index ? { ...jour, [field]: value } : jour))
     setOpeningHours(updatedHours)
     
-    // Convertir le format pour formData.ouverture
     const ouvertureRecord = updatedHours.reduce((acc, jour) => {
       acc[jour.jour] = {
         isOpen: jour.ouvert,
         morning: {
-          start: jour.debut,
-          end: jour.fin
+          start: jour.matinDebut,
+          end: jour.matinFin
+        },
+        afternoon: {
+          start: jour.apremDebut,
+          end: jour.apremFin
         }
       }
       return acc
@@ -62,23 +71,36 @@ export default function OpeningHours({ formData, setFormData }: Omit<OpeningHour
       <h3 className="text-lg font-medium mb-2">Horaires d&apos;ouverture</h3>
       {openingHours.map((jour, index) => (
         <Card key={jour.jour} className="mb-2">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                checked={jour.ouvert}
-                onCheckedChange={(checked) => handleChange(index, "ouvert", checked)}
-                id={`checkbox-${jour.jour}`}
-              />
-              <Label htmlFor={`checkbox-${jour.jour}`} className="font-normal">
-                {jour.jour}
-              </Label>
+          <CardContent className="p-4">
+            <div className="flex flex-col space-y-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  checked={jour.ouvert}
+                  onCheckedChange={(checked) => handleChange(index, "ouvert", checked)}
+                  id={`checkbox-${jour.jour}`}
+                />
+                <Label htmlFor={`checkbox-${jour.jour}`} className="font-medium w-24">
+                  {jour.jour}
+                </Label>
+              </div>
+              
+              {jour.ouvert && (
+                <div className="flex flex-col space-y-2 pl-6">
+                  <div className="flex items-center space-x-2">
+                    <Label className="w-24">Matin:</Label>
+                    <TimePicker value={jour.matinDebut} onChange={(value) => handleChange(index, "matinDebut", value)} />
+                    <span className="mx-2">-</span>
+                    <TimePicker value={jour.matinFin} onChange={(value) => handleChange(index, "matinFin", value)} />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Label className="w-24">Après-midi:</Label>
+                    <TimePicker value={jour.apremDebut} onChange={(value) => handleChange(index, "apremDebut", value)} />
+                    <span className="mx-2">-</span>
+                    <TimePicker value={jour.apremFin} onChange={(value) => handleChange(index, "apremFin", value)} />
+                  </div>
+                </div>
+              )}
             </div>
-            {jour.ouvert && (
-              <>
-                <TimePicker value={jour.debut} onChange={(value) => handleChange(index, "debut", value)} />
-                <TimePicker value={jour.fin} onChange={(value) => handleChange(index, "fin", value)} />
-              </>
-            )}
           </CardContent>
         </Card>
       ))}

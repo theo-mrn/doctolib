@@ -18,14 +18,16 @@ type Appointment = {
   price: number;
 };
 
-export function UpcomingAppointments({ dateRange }: { dateRange: DateRange }) {
+export function UpcomingAppointments({ dateRange, salonId }: { dateRange: DateRange, salonId: number }) {
   const [appointments, setAppointments] = useState<Appointment[]>([])
 
   useEffect(() => {
+    if (!salonId) return; // Vérifiez que salonId est défini
     const fetchAppointments = async () => {
       const { data, error } = await supabase
         .from('reservations')
         .select('*')
+        .eq('salon_id', salonId)
       if (error) {
         console.error('Erreur lors de la récupération des rendez-vous:', error.message)
       } else {
@@ -34,7 +36,7 @@ export function UpcomingAppointments({ dateRange }: { dateRange: DateRange }) {
       }
     }
     fetchAppointments()
-  }, [])
+  }, [salonId])
 
   const filteredAppointments = appointments.filter(appointment => {
     if (!dateRange?.from || !dateRange?.to) return true;

@@ -520,7 +520,10 @@ export default function SalonList() {
         <Dialog open={!!selectedSalonImages} onOpenChange={() => setSelectedSalonImages(null)}>
           <DialogContent className="w-full h-full max-w-none max-h-none">
             <DialogTitle className="sr-only">Galerie d&apos;images</DialogTitle>
-            <GallerySalonImages salonId={selectedSalonImages} />
+            <GallerySalonImages 
+              salonId={selectedSalonImages} 
+              refresh={false}  // Valeur statique puisque le refresh n'est pas nécessaire ici
+            />
           </DialogContent>
         </Dialog>
       )}

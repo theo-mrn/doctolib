@@ -3,15 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import SalonInfo from '@/components/SalonInfo';
-
-interface Salon {
-  id: string;
-  nom_salon: string;
-  adresse: string;
-  description: string;
-  code_postal: string;
-  ville: string;
-}
+import type { Salon } from '@/types/salon';
 
 export default function GestionSalon() {
   const [salons, setSalons] = useState<Salon[]>([]);

@@ -32,31 +32,19 @@ import { Label } from "@/components/ui/label"
 import { supabase } from "@/lib/supabase"
 import { formatISO } from "date-fns"
 
-export function AppointmentCalendar() {
+export function AppointmentCalendar({ salonId }: { salonId: number }) {
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [appointments, setAppointments] = useState<{ id: string; client: string; service: string; time: string; date: string; price: number }[]>([])
   const [editingAppointment, setEditingAppointment] = useState<typeof appointments[0] | null>(null)
 
   useEffect(() => {
     const fetchAppointments = async () => {
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      if (authError || !user) {
-        console.error('❌ Erreur lors de la récupération de l\'utilisateur:', authError?.message)
+      console.log('Fetched Salon ID:', salonId)
+
+      if (!salonId) {
+        console.error('❌ Salon ID is null')
         return
       }
-
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('salon')
-        .eq('id', user.id)
-        .single()
-
-      if (profileError) {
-        console.error('❌ Erreur lors de la récupération du profil:', profileError.message)
-        return
-      }
-
-      const salonId = profile.salon
 
       const { data: reservations, error } = await supabase
         .from('reservations')
@@ -80,30 +68,18 @@ export function AppointmentCalendar() {
     }
 
     fetchAppointments()
-  }, [])
+  }, [salonId])
 
   useEffect(() => {
     if (!date) return
 
     const fetchAppointmentsInRange = async () => {
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      if (authError || !user) {
-        console.error('❌ Erreur lors de la récupération de l\'utilisateur:', authError?.message)
+      console.log('Fetched Salon ID for date range:', salonId)
+
+      if (!salonId) {
+        console.error('❌ Salon ID is null')
         return
       }
-
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('salon')
-        .eq('id', user.id)
-        .single()
-
-      if (profileError) {
-        console.error('❌ Erreur lors de la récupération du profil:', profileError.message)
-        return
-      }
-
-      const salonId = profile.salon
 
       const { data: reservations, error } = await supabase
         .from('reservations')
@@ -126,7 +102,25 @@ export function AppointmentCalendar() {
     }
 
     fetchAppointmentsInRange()
-  }, [date])
+  }, [date, salonId])
+
+  useEffect(() => {
+    console.log('Salon ID:', salonId)
+    if (!salonId) return; // Vérifiez que salonId est défini
+    const fetchAppointments = async () => {
+      const { data, error } = await supabase
+        .from('reservations')
+        .select('*')
+        .eq('salon_id', salonId)
+      if (error) {
+        console.error('Erreur lors de la récupération des rendez-vous:', error.message)
+      } else {
+        const sortedAppointments = data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        setAppointments(sortedAppointments)
+      }
+    }
+    fetchAppointments()
+  }, [salonId])
 
   const handleEdit = async (appointment: typeof appointments[0]) => {
     setEditingAppointment(appointment)

@@ -8,6 +8,7 @@ import { Scissors, Calendar, Star,  ChevronRight, Check } from 'lucide-react'
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase'; // Assurez-vous que Supabase est bien configuré
 import { useRouter } from 'next/navigation';
+import SalonRecherche from "@/components/recherche"
 
 interface Salon {
   id: number;
@@ -36,29 +37,34 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 pt-[var(--navbar-height)]">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <main className="flex-1 overflow-auto">
-        <section className="w-full  py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-r from-primary to-primary-foreground">
-          <div className="container px-12">
-            <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
-              <div className="flex flex-col justify-center space-y-4 text-white">
-                <div className="space-y-2">
-                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
+        <section className="relative h-screen w-full">
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-black/50 z-10" />
+            <Image
+              src="/salon.jpg"
+              alt="Background"
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+          
+          <div className="relative z-20 h-full flex items-center justify-center">
+            <div className="container mx-auto px-4">
+              <div className="flex flex-col items-center space-y-12 max-w-4xl mx-auto">
+                <div className="text-center space-y-6">
+                  <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white">
                     La beauté à portée de clic
                   </h1>
-                  <p className="max-w-[600px] text-gray-200 md:text-xl">
+                  <p className="text-xl md:text-2xl text-gray-200 max-w-2xl mx-auto">
                     Réservez votre coiffeur en quelques secondes. Plus de 1000 salons à votre disposition.
                   </p>
                 </div>
-              </div>
-              <div className="flex items-center justify-center">
-                <Image
-                  src="/salon.jpg"
-                  width={800}
-                  height={400}
-                  alt="Illustration d&apos;une coiffeuse stylisant les cheveux d&apos;une cliente"
-                  className="rounded-lg"
-                />
+                <div className="w-full max-w-3xl">
+                  <SalonRecherche />
+                </div>
               </div>
             </div>
           </div>

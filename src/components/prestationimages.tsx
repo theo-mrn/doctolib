@@ -5,9 +5,11 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 type GalleryPrestationImagesProps = {
   salonId: number;
+  refresh: boolean;
 };
 
 type GalleryImage = {
@@ -15,8 +17,10 @@ type GalleryImage = {
   image_url: string;
 };
 
-const GalleryPrestationImages: React.FC<GalleryPrestationImagesProps> = ({ salonId }) => {
+const GalleryPrestationImages: React.FC<GalleryPrestationImagesProps> = ({ salonId, refresh }) => {
   const [images, setImages] = useState<GalleryImage[]>([]);
+  const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+  const [currentIndex, setCurrentIndex] = useState<number | null>(null);
   const [showAllImages, setShowAllImages] = useState(false);
 
   useEffect(() => {
@@ -34,19 +38,39 @@ const GalleryPrestationImages: React.FC<GalleryPrestationImagesProps> = ({ salon
     };
 
     fetchImages();
-  }, [salonId]);
+  }, [salonId, refresh]);
+
+  const handleNextImage = () => {
+    if (currentIndex !== null) {
+      setCurrentIndex((currentIndex + 1) % images.length);
+      setSelectedImage(images[(currentIndex + 1) % images.length]);
+    }
+  };
+
+  const handlePrevImage = () => {
+    if (currentIndex !== null) {
+      setCurrentIndex((currentIndex - 1 + images.length) % images.length);
+      setSelectedImage(images[(currentIndex - 1 + images.length) % images.length]);
+    }
+  };
 
   return (
-    <div className="w-full max-w-5xl mx-auto right-0 p-2">
+    <div className="w-full max-w-5xl mx-auto">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {images.slice(0, 5).map((image) => (
-          <div key={image.id} className="relative aspect-[16/9]">
-            <Image
-              src={image.image_url}
-              alt="Image de prestation"
-              fill
-              className="rounded-md object-cover"
-            />
+        {images.slice(0, 5).map((image, index) => (
+          <div key={image.id} className={`relative ${index === 0 ? "col-span-2 row-span-2" : ""}`}>
+            <div className="relative aspect-[16/9]">
+              <Image
+                src={image.image_url}
+                alt={`Prestation Image ${index + 1}`}
+                fill
+                className="rounded-md object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                onClick={() => {
+                  setSelectedImage(image);
+                  setCurrentIndex(index);
+                }}
+              />
+            </div>
           </div>
         ))}
         {images.length > 5 && (
@@ -62,21 +86,47 @@ const GalleryPrestationImages: React.FC<GalleryPrestationImagesProps> = ({ salon
         )}
       </div>
 
-      <Dialog open={showAllImages} onOpenChange={() => setShowAllImages(false)}>
-        <DialogContent className="w-full h-full max-w-none max-h-none overflow-y-auto">
-          <DialogTitle className="sr-only">Galerie d&apos;images de prestation</DialogTitle>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-            {images.map((image, index) => (
-              <div key={image.id} className="relative aspect-[16/9]">
+      <Dialog open={!!selectedImage || showAllImages} onOpenChange={() => { setSelectedImage(null); setShowAllImages(false); }}>
+        <DialogContent className="w-full h-full max-w-none max-h-none">
+          <DialogTitle className="sr-only">Galerie d&apos;images</DialogTitle>
+          {selectedImage && !showAllImages && (
+            <>
+              <div className="relative aspect-[16/9] w-full">
                 <Image
-                  src={image.image_url}
-                  alt={`Prestation Image ${index + 1}`}
+                  src={selectedImage.image_url}
+                  alt="Image sélectionnée"
                   fill
-                  className="rounded-md object-cover"
+                  className="rounded-lg object-contain"
                 />
+                <button
+                  className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-opacity-50 p-2 rounded-full"
+                  onClick={handlePrevImage}
+                >
+                  <ArrowLeft/>
+                </button>
+                <button
+                  className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-opacity-50 p-2 rounded-full"
+                  onClick={handleNextImage}
+                >
+                   <ArrowRight/>
+                </button>
               </div>
-            ))}
-          </div>
+            </>
+          )}
+          {showAllImages && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+              {images.map((image, index) => (
+                <div key={image.id} className="relative aspect-[16/9]">
+                  <Image
+                    src={image.image_url}
+                    alt={`Prestation Image ${index + 1}`}
+                    fill
+                    className="rounded-md object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
