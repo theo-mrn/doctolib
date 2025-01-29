@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import SalonRecherche from "@/components/recherche"
+import { Suspense } from 'react'
 
 export default function LandingPage() {
   return (
@@ -28,7 +29,9 @@ export default function LandingPage() {
                   </h2>
                 </div>
                 <div className="w-full max-w-3xl">
-                  <SalonRecherche />
+                  <Suspense fallback={<div className="text-white">Chargement...</div>}>
+                    <SalonRecherche />
+                  </Suspense>
                 </div>
               </div>
             </div>

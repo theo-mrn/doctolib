@@ -4,8 +4,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Scissors, Calendar, Star,  ChevronRight, Check } from 'lucide-react'
-import { useEffect, useState } from 'react';
+import { Scissors, Calendar, Star, ChevronRight, Check } from 'lucide-react'
+import { useEffect, useState, Suspense } from 'react';
 import { supabase } from '@/lib/supabase'; // Assurez-vous que Supabase est bien configuré
 import { useRouter } from 'next/navigation';
 import SalonRecherche from "@/components/recherche"
@@ -63,7 +63,9 @@ export default function LandingPage() {
                   </p>
                 </div>
                 <div className="w-full max-w-3xl">
-                  <SalonRecherche />
+                  <Suspense fallback={<div className="text-white">Chargement...</div>}>
+                    <SalonRecherche />
+                  </Suspense>
                 </div>
               </div>
             </div>
