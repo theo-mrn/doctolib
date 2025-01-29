@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Scissors, User, Calendar, ChevronDown } from "lucide-react"
+import { Scissors, User, Calendar, ChevronDown, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 export function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [userInitials, setUserInitials] = useState("")
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -42,9 +43,9 @@ export function Navbar() {
   }
 
   return (
-    <nav>
-      <div className="flex justify-between items-center h-16 px-4 md:px-6">
-        {/* Left side - Logo */}
+    <nav className="bg-zinc-900">
+      <div className="flex justify-between items-center h-16 px-4 md:px-6 relative">
+        {/* Logo */}
         <div className="flex items-center">
           <Link href="/recherche" className="flex items-center">
             <Scissors className="h-6 w-6 text-zinc-100" />
@@ -52,8 +53,16 @@ export function Navbar() {
           </Link>
         </div>
 
-        {/* Center - Navigation Links */}
-        <div className="flex-1 flex justify-center items-center">
+        {/* Mobile menu button */}
+        <button
+          className="md:hidden text-zinc-100"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+        >
+          {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </button>
+
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex flex-1 justify-center items-center">
           <div className="flex items-center space-x-6">
             <Link 
               href="/recherche?type=coiffeur" 
@@ -76,8 +85,8 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Right side - User actions */}
-        <div className="flex items-center space-x-2">
+        {/* Desktop User Actions */}
+        <div className="hidden md:flex items-center space-x-2">
           <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -164,6 +173,103 @@ export function Navbar() {
             )}
           </div>
         </div>
+
+        {/* Mobile Navigation Menu */}
+        {isMenuOpen && (
+          <div className="absolute top-16 left-0 right-0 bg-zinc-900 p-4 md:hidden border-t border-zinc-800">
+            <div className="flex flex-col space-y-4">
+              <Link 
+                href="/recherche?type=coiffeur" 
+                className="text-base font-bold text-zinc-100 hover:text-black hover:bg-white transition-colors px-3 py-2 rounded"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Coiffeur
+              </Link>
+              <Link 
+                href="/recherche?type=barbier" 
+                className="text-base font-bold text-zinc-100 hover:text-black hover:bg-white transition-colors px-3 py-2 rounded"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Barbier
+              </Link>
+              <Link 
+                href="/recherche?type=manucure" 
+                className="text-base font-bold text-zinc-100 hover:text-black hover:bg-white transition-colors px-3 py-2 rounded"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Manucure
+              </Link>
+
+              <div className="border-t border-zinc-800 my-2"></div>
+
+              <Link
+                href="/reservations"
+                className="flex items-center text-base font-bold text-zinc-100 hover:text-black hover:bg-white transition-colors px-3 py-2 rounded"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                Mes rendez-vous
+              </Link>
+
+              {isLoggedIn ? (
+                <>
+                  <Link
+                    href="/moncompte"
+                    className="flex items-center text-base font-bold text-zinc-100 hover:text-black hover:bg-white transition-colors px-3 py-2 rounded"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    Mon compte
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="text-left text-base font-bold text-zinc-100 hover:text-black hover:bg-white transition-colors px-3 py-2 rounded w-full"
+                  >
+                    Se déconnecter
+                  </button>
+                </>
+              ) : (
+                <Button
+                  variant="outline"
+                  className="text-zinc-100 text-base font-bold border-zinc-700 hover:bg-white hover:text-black w-full"
+                  onClick={() => {
+                    router.push("/connexion");
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  Se connecter
+                </Button>
+              )}
+
+              <div className="border-t border-zinc-800 my-2"></div>
+
+              <Link
+                href="/register-salon"
+                className="text-base font-bold text-zinc-100 hover:text-black hover:bg-white transition-colors px-3 py-2 rounded"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Inscrivez votre salon
+              </Link>
+              <Link
+                href="/monsalon"
+                className="text-base font-bold text-zinc-100 hover:text-black hover:bg-white transition-colors px-3 py-2 rounded"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Mon salon
+              </Link>
+              <Link
+                href="/modifier-salon"
+                className="text-base font-bold text-zinc-100 hover:text-black hover:bg-white transition-colors px-3 py-2 rounded"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Modifier mon salon
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   )
