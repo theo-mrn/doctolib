@@ -34,7 +34,6 @@ export default function CommentsSection({ salonId }: CommentSectionProps) {
   const [comments, setComments] = useState<Comment[]>([])
   const [newComment, setNewComment] = useState("")
   const [userId, setUserId] = useState<string | null>(null)
-  const [showLoginModal, setShowLoginModal] = useState(false)
   const [editingComment, setEditingComment] = useState<string>("")
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [commentToDelete, setCommentToDelete] = useState<string | null>(null)
@@ -68,7 +67,7 @@ export default function CommentsSection({ salonId }: CommentSectionProps) {
     e.preventDefault()
     
     if (!userId) {
-      setShowLoginModal(true)
+      handleLoginRedirect()
       return
     }
 

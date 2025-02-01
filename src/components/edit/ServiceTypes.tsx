@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Plus, X } from "lucide-react"
-import type { Salon, SocialLink } from "@/types/salon"
+import type { Salon, SocialLink, UpdateFormDataFunction } from "@/types/salon"
 
 const PREDEFINED_SERVICES = [
   "Coiffeur", "Barbier", "Manucure", 
@@ -15,12 +15,10 @@ const PREDEFINED_SERVICES = [
   "Beauté des pieds", "Relooking"
 ]
 
-type ServiceTypesValue = string[] | SocialLink[]
-
-interface ServiceTypesProps {
-  formData: Salon
-  updateFormData: (field: keyof Salon, value: ServiceTypesValue) => void
-}
+type ServiceTypesProps = {
+  formData: Salon;
+  updateFormData: UpdateFormDataFunction;
+};
 
 export default function ServiceTypes({ formData, updateFormData }: ServiceTypesProps) {
   const [types, setTypes] = useState(formData.types || [])
@@ -29,9 +27,16 @@ export default function ServiceTypes({ formData, updateFormData }: ServiceTypesP
     Array.isArray(formData.social_links) ? formData.social_links : []
   )
 
+  const convertSocialLinksToRecord = (links: SocialLink[]): Record<string, SocialLink> => {
+    return links.reduce((acc, link, index) => {
+      acc[`link${index + 1}`] = link;
+      return acc;
+    }, {} as Record<string, SocialLink>);
+  };
+
   const updateParentFormData = useCallback(() => {
     updateFormData("types", types)
-    updateFormData("social_links", socialLinks)
+    updateFormData("social_links", convertSocialLinksToRecord(socialLinks))
   }, [types, socialLinks, updateFormData])
 
   useEffect(() => {

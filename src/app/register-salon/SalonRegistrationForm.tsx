@@ -11,7 +11,6 @@ import Pricing from "./steps/Pricing"
 import ServiceTypes from "./steps/ServiceTypes"
 // Supprimer l'import de SocialLinks
 import { supabase } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
 import SubmissionConfirmation from './components/SubmissionConfirmation';
 
 export interface OpeningHour {
@@ -126,7 +125,6 @@ const steps: Array<{ title: string; component: StepComponent; step: StepProps['s
 ]
 
 export default function SalonRegistrationForm() {
-  const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState<SalonFormData>({
     nom_salon: "",

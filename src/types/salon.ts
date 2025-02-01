@@ -84,8 +84,10 @@ export interface PricingData {
   };
 }
 
+export type ServiceTypesValue = string[];
+
 export type UpdateFormDataFunction = <T extends keyof Salon>(
   field: T,
-  value: T extends 'pricing' ? PricingData | null : Salon[T]
+  value: T extends 'service_types' ? ServiceTypesValue : Salon[T]
 ) => void;
 

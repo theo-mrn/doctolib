@@ -16,7 +16,7 @@ export default function SubmissionConfirmation({ salonId }: SubmissionConfirmati
         <CheckCircle2 className="w-16 h-16 text-green-500" />
         <h2 className="text-2xl font-bold">Demande envoyée avec succès !</h2>
         <p className="text-gray-600 max-w-md text-center">
-          Votre demande d'inscription a été reçue et est en cours d'examen. 
+          Votre demande d&apos;inscription a été reçue et est en cours d&apos;examen. 
           Nous vous contacterons dès que possible pour la validation de votre salon.
         </p>
         {salonId && (
