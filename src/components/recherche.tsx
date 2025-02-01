@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,20 +10,25 @@ type CitySuggestion = {
   codesPostaux: string[];
 };
 
+const INITIAL_SUGGESTIONS = [
+  "Coiffeur","Barbier", "Manucure", "Esthéticienne","Salon de beauté",
+  "Pédicure", "Coloration",
+  "Extensions","Massage crânien", 
+  "Epilation", "Maquillage", "Soins du visage", "Soins du corps", "Spa", 
+  "Tatouage", "Piercing", "Soins des pieds", "Soins des mains", "Onglerie", 
+  "Beauté des pieds","Relooking"
+];
+
 export default function SalonRecherche() {
   const searchParams = useSearchParams()
   const [query, setQuery] = useState("")
   const [suggestions, setSuggestions] = useState<CitySuggestion[]>([])
   const [serviceQuery, setServiceQuery] = useState("")
-  const [serviceSuggestions, setServiceSuggestions] = useState([
-    "Coiffeur","Barbier", "Manucure", 
-    "Pédicure", "Coloration",
-    "Extensions","Massage crânien", 
-    "Epilation", "Maquillage", "Soins du visage", "Soins du corps", "Spa", 
-    "Tatouage", "Piercing", "Soins des pieds", "Soins des mains", "Onglerie", 
-    "Beauté des pieds","Relooking"
-  ])
+  const [serviceSuggestions, setServiceSuggestions] = useState(INITIAL_SUGGESTIONS)
   const [selectedCity, setSelectedCity] = useState<{ nom: string; codesPostaux: string[] } | null>(null)
+  const [isServiceModified, setIsServiceModified] = useState(false)
+  const [activeField, setActiveField] = useState<'service' | 'city' | null>(null);
+  const componentRef = useRef<HTMLDivElement>(null);
 
   const router = useRouter();
 
@@ -33,10 +38,23 @@ export default function SalonRecherche() {
       // Capitaliser la première lettre
       const formattedType = typeParam.charAt(0).toUpperCase() + typeParam.slice(1)
       setServiceQuery(formattedType)
-      // Vider les suggestions si on arrive avec un paramètre type
-      setServiceSuggestions([])
+      setServiceSuggestions(INITIAL_SUGGESTIONS)
+      setIsServiceModified(false)
     }
   }, [searchParams])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (componentRef.current && !componentRef.current.contains(event.target as Node)) {
+        setActiveField(null);
+        setSuggestions([]);
+        setServiceSuggestions(INITIAL_SUGGESTIONS);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const fetchSuggestions = async (input: string) => {
     if (input.length < 2) return // Limiter les appels pour les entrées courtes
@@ -64,17 +82,24 @@ export default function SalonRecherche() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 p-4 bg-gray-50 rounded-lg shadow-lg">
+    <div className="flex flex-col md:flex-row gap-4 p-4 bg-gray-50 rounded-lg shadow-lg" ref={componentRef}>
       <div className="flex-1 relative">
         <Input
           type="text"
           placeholder="Que cherchez-vous ?"
           className="w-full h-10"
           value={serviceQuery}
-          onChange={(e) => setServiceQuery(e.target.value)}
+          onChange={(e) => {
+            setServiceQuery(e.target.value)
+            setIsServiceModified(true)
+            setActiveField('service')
+          }}
+          onFocus={() => setActiveField('service')}
         />
-        {serviceQuery.length > 0 && serviceSuggestions.length > 0 && !searchParams.get('type') && (
-          <ul className="absolute bg-white border border-gray-200 rounded-lg shadow-lg mt-2 w-full">
+        {serviceQuery.length > 0 && serviceSuggestions.length > 0 && 
+         (isServiceModified || !searchParams.get('type')) && 
+         activeField === 'service' && (
+          <ul className="absolute bg-white border border-gray-200 rounded-lg shadow-lg mt-2 w-full z-50">
             {serviceSuggestions
               .filter((service) =>
                 service.toLowerCase().includes(serviceQuery.toLowerCase())
@@ -103,10 +128,12 @@ export default function SalonRecherche() {
           onChange={(e) => {
             setQuery(e.target.value)
             fetchSuggestions(e.target.value)
+            setActiveField('city')
           }}
+          onFocus={() => setActiveField('city')}
         />
-        {suggestions.length > 0 && (
-          <ul className="absolute bg-white border border-gray-200 rounded-lg shadow-lg mt-2 w-full">
+        {suggestions.length > 0 && activeField === 'city' && (
+          <ul className="absolute bg-white border border-gray-200 rounded-lg shadow-lg mt-2 w-full z-50">
             {suggestions.map((city, index) => (
               <li
                 key={`${city.nom}-${index}`}
@@ -119,7 +146,13 @@ export default function SalonRecherche() {
           </ul>
         )}
       </div>
-      <Button className="mt-4 md:mt-0" onClick={handleSearch}>
+      <Button 
+        className="mt-4 md:mt-0" 
+        onClick={() => {
+          handleSearch();
+          setActiveField(null);
+        }}
+      >
         <Search className="mr-2 h-4 w-4" /> Rechercher
       </Button>
     </div>

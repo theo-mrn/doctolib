@@ -64,6 +64,7 @@ const GalleryPrestationImages: React.FC<GalleryPrestationImagesProps> = ({ salon
                 src={image.image_url}
                 alt={`Prestation Image ${index + 1}`}
                 fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="rounded-md object-cover cursor-pointer hover:opacity-95 transition-opacity"
                 onClick={() => {
                   setSelectedImage(image);
@@ -96,6 +97,7 @@ const GalleryPrestationImages: React.FC<GalleryPrestationImagesProps> = ({ salon
                   src={selectedImage.image_url}
                   alt="Image sélectionnée"
                   fill
+                  sizes="100vw"
                   className="rounded-lg object-contain"
                 />
                 <button

@@ -22,9 +22,13 @@ export default function SalonInfo({ salon }: Props) {
 
   const SocialLink = ({ url, icon: Icon }: { url?: string; icon: React.ElementType }) => {
     if (!url) return null
+
+    // Ajouter http:// ou https:// si l'URL n'en a pas
+    const formattedUrl = url.match(/^https?:\/\//) ? url : `https://${url}`
+
     return (
       <a
-        href={url}
+        href={formattedUrl}
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center text-gray-600 hover:text-[#8B4513] transition-colors"

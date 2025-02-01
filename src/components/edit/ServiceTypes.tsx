@@ -15,7 +15,7 @@ const PREDEFINED_SERVICES = [
   "Beauté des pieds", "Relooking"
 ]
 
-type ServiceTypesValue = string[] | Record<string, SocialLink>
+type ServiceTypesValue = string[] | SocialLink[]
 
 interface ServiceTypesProps {
   formData: Salon
@@ -25,7 +25,9 @@ interface ServiceTypesProps {
 export default function ServiceTypes({ formData, updateFormData }: ServiceTypesProps) {
   const [types, setTypes] = useState(formData.types || [])
   const [newType, setNewType] = useState("")
-  const [socialLinks, setSocialLinks] = useState<Record<string, SocialLink>>(formData.social_links || {})
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>(
+    Array.isArray(formData.social_links) ? formData.social_links : []
+  )
 
   const updateParentFormData = useCallback(() => {
     updateFormData("types", types)
@@ -48,24 +50,19 @@ export default function ServiceTypes({ formData, updateFormData }: ServiceTypesP
   }
 
   const handleAddLink = () => {
-    const newLink: SocialLink = { platform: "", url: "" }
-    const key = Date.now().toString()
-    setSocialLinks((prev) => ({ ...prev, [key]: newLink }))
+    setSocialLinks(prev => [...prev, { platform: "", url: "" }])
   }
 
-  const handleLinkChange = (key: string, field: keyof SocialLink, value: string) => {
-    setSocialLinks((prev) => ({
-      ...prev,
-      [key]: { ...prev[key], [field]: value },
-    }))
+  const handleLinkChange = (index: number, field: keyof SocialLink, value: string) => {
+    setSocialLinks(prev => 
+      prev.map((link, i) => 
+        i === index ? { ...link, [field]: value } : link
+      )
+    )
   }
 
-  const handleRemoveLink = (key: string) => {
-    setSocialLinks((prev) => {
-      const newLinks = { ...prev }
-      delete newLinks[key]
-      return newLinks
-    })
+  const handleRemoveLink = (index: number) => {
+    setSocialLinks(prev => prev.filter((_, i) => i !== index))
   }
 
   return (
@@ -104,11 +101,11 @@ export default function ServiceTypes({ formData, updateFormData }: ServiceTypesP
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Réseaux sociaux</h3>
         <div className="space-y-4">
-          {Object.entries(socialLinks).map(([key, link]) => (
-            <div key={key} className="flex items-center space-x-2">
+          {socialLinks.map((link, index) => (
+            <div key={index} className="flex items-center space-x-2">
               <select
                 value={link.platform}
-                onChange={(e) => handleLinkChange(key, "platform", e.target.value)}
+                onChange={(e) => handleLinkChange(index, "platform", e.target.value)}
                 className="p-2 border rounded"
               >
                 <option value="">Sélectionner un réseau</option>
@@ -120,15 +117,15 @@ export default function ServiceTypes({ formData, updateFormData }: ServiceTypesP
               </select>
               <Input
                 value={link.url}
-                onChange={(e) => handleLinkChange(key, "url", e.target.value)}
+                onChange={(e) => handleLinkChange(index, "url", e.target.value)}
                 placeholder="Lien URL"
               />
-              <Button onClick={() => handleRemoveLink(key)} variant="destructive" size="icon">
+              <Button type="button" onClick={() => handleRemoveLink(index)} variant="destructive" size="icon">
                 <X className="h-4 w-4" />
               </Button>
             </div>
           ))}
-          <Button onClick={handleAddLink} variant="outline">
+          <Button type="button" onClick={handleAddLink} variant="outline">
             <Plus className="mr-2 h-4 w-4" />
             Ajouter un réseau
           </Button>

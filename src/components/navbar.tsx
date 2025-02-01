@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Scissors, User, Calendar, ChevronDown, Menu, X } from "lucide-react"
+import { Scissors, User, Calendar, ChevronDown, Menu, X, Search  } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
@@ -43,9 +43,8 @@ export function Navbar() {
   }
 
   return (
-    <nav className="bg-zinc-900">
+    <nav >
       <div className="flex justify-between items-center h-16 px-4 md:px-6 relative">
-        {/* Logo */}
         <div className="flex items-center">
           <Link href="/recherche" className="flex items-center">
             <Scissors className="h-6 w-6 text-zinc-100" />
@@ -65,23 +64,22 @@ export function Navbar() {
         <div className="hidden md:flex flex-1 justify-center items-center">
           <div className="flex items-center space-x-6">
             <Link 
-              href="/recherche?type=coiffeur" 
-              className="text-base font-bold text-zinc-100 hover:text-black hover:bg-white transition-colors px-3 py-1.5 rounded text-center"
+              href="/recherche" 
+              className="text-base font-bold text-zinc-100 hover:text-black hover:bg-white transition-colors px-3 py-1.5 rounded text-center flex "
             >
-              Coiffeur
+         
+            <label className="mr-3">Rechercher</label>
+            <Search/>
             </Link>
-            <Link 
-              href="/recherche?type=barbier" 
-              className="text-base font-bold text-zinc-100 hover:text-black hover:bg-white transition-colors px-3 py-1.5 rounded text-center"
+
+            <Link
+              href="/reservations"
+              className="flex items-center text-base font-bold text-zinc-100 hover:text-black hover:bg-white transition-colors px-3 py-1.5 rounded"
             >
-              Barbier
+              <Calendar className="mr-2 h-4 w-4" />
+              Mes rendez-vous
             </Link>
-            <Link 
-              href="/recherche?type=manucure" 
-              className="text-base font-bold text-zinc-100 hover:text-black hover:bg-white transition-colors px-3 py-1.5 rounded text-center"
-            >
-              Manucure
-            </Link>
+        
           </div>
         </div>
 
@@ -126,13 +124,7 @@ export function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Link
-              href="/reservations"
-              className="flex items-center text-base font-bold text-zinc-100 hover:text-black hover:bg-white transition-colors px-3 py-1.5 rounded"
-            >
-              <Calendar className="mr-2 h-4 w-4" />
-              Mes rendez-vous
-            </Link>
+          
 
             {isLoggedIn ? (
               <DropdownMenu>

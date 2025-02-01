@@ -12,6 +12,7 @@ import ServiceTypes from "./steps/ServiceTypes"
 // Supprimer l'import de SocialLinks
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import SubmissionConfirmation from './components/SubmissionConfirmation';
 
 export interface OpeningHour {
   isOpen: boolean
@@ -139,6 +140,8 @@ export default function SalonRegistrationForm() {
     social_links: {}
   })
   const [userId, setUserId] = useState<string | null>(null)
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submittedSalonId, setSubmittedSalonId] = useState<string | null>(null);
 
   useEffect(() => {
     const getSession = async () => {
@@ -193,45 +196,54 @@ export default function SalonRegistrationForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (currentStep === steps.length - 1 && isStepValid()) {
-      const pricingObject = formData.pricing.reduce<PricingObject>((acc, category) => {
-        acc[category.title] = category.services.reduce<{ [key: string]: ServiceDetails }>((serviceAcc, service) => {
-          serviceAcc[service.title] = {
-            description: service.description || "",
-            duration: service.duration,
-            price: parseFloat(service.price),
-          }
-          return serviceAcc
+    try {
+      if (currentStep === steps.length - 1 && isStepValid()) {
+        const pricingObject = formData.pricing.reduce<PricingObject>((acc, category) => {
+          acc[category.title] = category.services.reduce<{ [key: string]: ServiceDetails }>((serviceAcc, service) => {
+            serviceAcc[service.title] = {
+              description: service.description || "",
+              duration: service.duration,
+              price: parseFloat(service.price),
+            }
+            return serviceAcc
+          }, {})
+          return acc
         }, {})
-        return acc
-      }, {})
-
-      const dataToSubmit = {
-        professionnel_id: userId,
-        nom_salon: formData.nom_salon,
-        adresse: formData.adresse,
-        code_postal: formData.code_postal,
-        ville: formData.ville,
-        description: formData.description,
-        ouverture: formData.ouverture,
-        pricing: pricingObject,
-        types: formData.types,
-        social_links: formData.social_links,
+  
+        const dataToSubmit = {
+          professionnel_id: userId,
+          nom_salon: formData.nom_salon,
+          adresse: formData.adresse,
+          code_postal: formData.code_postal,
+          ville: formData.ville,
+          description: formData.description,
+          ouverture: formData.ouverture,
+          pricing: pricingObject,
+          types: formData.types,
+          social_links: formData.social_links,
+        }
+  
+        const { data, error } = await supabase
+          .from('salons')
+          .insert([dataToSubmit])
+          .select('id')
+          .single()
+  
+        if (error) {
+          console.error("Error submitting form:", error)
+        } else {
+          console.log("Form submitted successfully")
+          setSubmittedSalonId(data.id);
+          setIsSubmitted(true);
+        }
       }
-
-      const { data, error } = await supabase
-        .from('salons')
-        .insert([dataToSubmit])
-        .select('id')
-        .single()
-
-      if (error) {
-        console.error("Error submitting form:", error)
-      } else {
-        console.log("Form submitted successfully")
-        router.push(`/dashboard/${data.id}`)
-      }
+    } catch (error) {
+      console.error('Erreur lors de la soumission:', error);
     }
+  }
+
+  if (isSubmitted) {
+    return <SubmissionConfirmation salonId={submittedSalonId || undefined} />;
   }
 
   const CurrentStepComponent = steps[currentStep].component as React.ComponentType<StepProps & { step: StepProps['step'] }>

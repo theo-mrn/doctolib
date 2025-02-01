@@ -120,7 +120,11 @@ export default function SalonList() {
 
     const fetchSalonsWithSlots = async () => {
       try {
-        const { data, error } = await supabase.from("salons").select("*")
+        const { data, error } = await supabase
+          .from("salons")
+          .select("*")
+          .eq('is_verified', true) 
+
         if (error) throw new Error(error.message)
 
         if (!data) {

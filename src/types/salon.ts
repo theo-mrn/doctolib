@@ -57,6 +57,7 @@ export interface Salon {
   types: string[] | null
   social_links: Record<string, SocialLink> | null
   hours: Record<string, string>;
+  is_verified: boolean;
 }
 
 export interface RawService {

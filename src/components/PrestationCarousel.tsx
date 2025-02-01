@@ -5,8 +5,8 @@ import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
-interface ImageCarouselProps {
-  salonId: string | number;  // Accepter les deux types
+interface PrestationCarouselProps {
+  salonId: string | number;
 }
 
 type CarouselImage = {
@@ -14,17 +14,15 @@ type CarouselImage = {
   image_url: string;
 };
 
-const ImageCarousel: React.FC<ImageCarouselProps> = ({ salonId }) => {
-  // Convertir en nombre si nécessaire
+const PrestationCarousel: React.FC<PrestationCarouselProps> = ({ salonId }) => {
   const numericSalonId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
-
   const [images, setImages] = useState<CarouselImage[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     const fetchImages = async () => {
       const { data, error } = await supabase
-        .from("salon_images")
+        .from("prestation_images")
         .select("id, image_url")
         .eq("salon_id", numericSalonId);
 
@@ -47,27 +45,27 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ salonId }) => {
   };
 
   return (
-    <div className="relative w-full max-w-3xl mx-auto">
+    <div className="relative w-full max-w-full sm:max-w-3xl mx-auto">
       {images.length > 0 && (
-        <div className="relative aspect-[16/9] w-full h-64 sm:h-80 group">
+        <div className="relative aspect-[16/9] w-full h-48 sm:h-64 group">
           <Image
             src={images[currentIndex].image_url}
-            alt={`Salon Image ${currentIndex + 1}`}
+            alt={`Prestation Image ${currentIndex + 1}`}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="rounded-lg object-cover"
           />
           <button
-            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute left-1 sm:left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1 sm:p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
             onClick={handlePrevImage}
           >
-            <ArrowLeft/>
+            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5"/>
           </button>
           <button
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1 sm:p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
             onClick={handleNextImage}
           >
-                <ArrowRight/>
+            <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5"/>
           </button>
         </div>
       )}
@@ -75,4 +73,4 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ salonId }) => {
   );
 };
 
-export default ImageCarousel;
+export default PrestationCarousel;
