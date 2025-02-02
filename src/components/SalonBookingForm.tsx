@@ -50,6 +50,7 @@ export default function SalonBookingForm({ salon }: Props) {
   const [prenom, setPrenom] = useState('');
   const [nom, setNom] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [reservedSlots, setReservedSlots] = useState<string[]>([]);
   const [profileError, setProfileError] = useState<string | null>(null);
   const [pricing, setPricing] = useState<Record<string, Record<string, { price: number; duration: string; description: string }>>>(salon.pricing || {});
@@ -63,6 +64,9 @@ export default function SalonBookingForm({ salon }: Props) {
         console.error('❌ Erreur lors de la récupération de l\'utilisateur:', authError?.message);
         return;
       }
+
+      // Pré-remplir l'email avec celui de l'utilisateur connecté
+      setEmail(user.email || '');
 
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
@@ -157,6 +161,7 @@ export default function SalonBookingForm({ salon }: Props) {
                     price: price,
                     full_name: `${prenom} ${nom}`,
                     phone: phone,
+                    email: user.email, // Ajout de l'email
                 },
             ]);
 
@@ -267,6 +272,8 @@ export default function SalonBookingForm({ salon }: Props) {
           <Input type="text" value={prenom} onChange={(e) => setPrenom(e.target.value)} /><br></br>
           <label className="block text-sm font-medium text-gray-700">Nom</label>
           <Input type="text" value={nom} onChange={(e) => setNom(e.target.value)} /><br></br>
+          <label className="block text-sm font-medium text-gray-700">Email</label>
+          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled className="bg-gray-100" /><br></br>
           <label className="block text-sm font-medium text-gray-700">Téléphone</label>
           <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /><br></br>
         </div>

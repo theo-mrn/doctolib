@@ -1,0 +1,14 @@
+name: Supabase Reminder Cron Job
+
+on:
+  schedule:
+    - cron: "0 8 * * *" # Exécute la tâche tous les jours à 8h UTC
+
+jobs:
+  call_supabase_function:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Appeler la fonction Supabase
+        run: |
+          curl -L -X POST 'https://sijvzedmeayxyqybephs.supabase.co/functions/v1/send-reminder' \
+          -H 'Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}'

@@ -1,5 +1,8 @@
-# Fichier .gitignore
-.env
+# Supabase
+.branches
+.temp
+
+# dotenvx
+.env.keys
 .env.local
-.env.production
-.env.staging
+.env.*.local
